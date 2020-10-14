@@ -9,5 +9,5 @@
 .ipynb_checkpoints/
 */.ipynb_checkpoints/
 .pytest_cache
-
+test_script.py
 .DS_Store
