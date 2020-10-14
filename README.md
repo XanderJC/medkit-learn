@@ -7,7 +7,7 @@ Provide interface for users to generate simulated medical decision making datase
 
 ### Why?
 
-Current environments inappropriate - justify.
+Current environments inappropriate.
 
 Medical ML development is limited by access to useful data.
 
@@ -46,10 +46,10 @@ Initial focus should be of course offline, I imagine something like:
 ```python
 import medkit as mk
 
-synthetic_dataset = mk.generate_data(setting = 'Cystic Fibrosis', 
-																			model = 'HMM', 
-																			markov_order = 2,
-																			size = 10_000, ...)
+synthetic_dataset = mk.generate_data(setting = 'Cystic Fibrosis',
+					model = 'HMM', 
+					markov_order = 2,
+					size = 10_000, ...)
 
 observations_train, actions_train = synthetic_dataset['training']
 observations_test,  actions_test  = synthetic_dataset['testing']
@@ -59,8 +59,8 @@ But it would also be useful to have access to live simulation as a gym environme
 
 ```python
 env = mk.make_gym(setting = 'Cystic Fibrosis', 
-									model = 'HMM', 
-									markov_order = 2, ...)
+			model = 'HMM', 
+			markov_order = 2, ...)
 observation = env.reset()
 observation, reward, done, info = env.step(action)
 ```
