@@ -2,29 +2,35 @@ from .__head__ import *
 
 class ToyEnv(gym.Env):
     '''
-    Super basic, 2 diseases (3 states) and four actions (TreatA,TreatB,discharge,Test)
-    Designed to test until confident of diagnosis, test only correct 70% of time.
-    Reward only for correct diagnosis and treatement. Diagnosis ends simulation. 
+    Super basic, partially observed optimal stopping problem. Set the number of diseases
+    (will be an additional 'healthy' state) and the accuracy of the test in [0,1].
+    Strategy would be to keep testing until confident enough in diagnosis.
     '''
-    def __init__(self):
+    def __init__(self,
+                n_diseases    : int,
+                test_accuracy : float):
         super(ToyEnv, self).__init__()
 
-        self.action_space = spaces.Discrete(4)
-        self.state_space = spaces.Discrete(3)
-        self.observation_space = spaces.Discrete(3)
+        self.action_space = spaces.Discrete(n_diseases + 2)
+        self.state_space = spaces.Discrete(n_diseases + 1)
+        self.observation_space = spaces.Discrete(n_diseases + 1)
 
+        self.test_acc = test_accuracy
+
+        self.state = self.state_space.sample()
+        self.t = 0
 
     def step(self, action):
 
         self.t += 1
-
         self.state = self._next_state(action)
+
         observation = self._observe(action)
         reward = self._get_reward(action)
-        done = action != 3
+        done = action != (self.action_space.n - 1)
         info = None
 
-        return observation,reward,done,info
+        return observation,reward,info,done
 
     def reset(self):
 
@@ -42,9 +48,8 @@ class ToyEnv(gym.Env):
 
     def _observe(self, action):
 
-        if action == 3:
-
-            test_accurate = bool(np.random.binomial(1,0.7))
+        if action == (self.action_space.n - 1):
+            test_accurate = bool(np.random.binomial(1,self.test_acc))
             if test_accurate:
                 obs = self.state
             else:
@@ -57,10 +62,11 @@ class ToyEnv(gym.Env):
 
     def _get_reward(self, action):
 
-        if action == 3:
+        if action == self.action_space.n - 1:
             reward = 0
+
         else:
-            if self.state == action:
+            if action == self.state :
                 reward = 1
             else:
                 reward = 0

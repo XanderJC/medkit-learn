@@ -1,5 +1,5 @@
 
-# Working title: Medkit-learn
+# Working title: Medkit-learn(ing) Environment
 
 ### High Level Overview
 
