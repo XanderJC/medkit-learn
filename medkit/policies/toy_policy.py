@@ -8,7 +8,8 @@ class ToyPolicy():
                 env             : gym.Env,
                 n_diseases      : int,
                 conf_threshold  : float,
-                test_acc_belief : float):
+                test_acc_belief : float,
+                **kwargs):
 
         self.env = env        
         self.n_diseases = n_diseases
@@ -18,16 +19,27 @@ class ToyPolicy():
         self.test_acc_belief = test_acc_belief
 
         self.belief = np.ones(self.states) / self.states
+        self.buffer = []
 
-    def rollout(self):
+    def batch_generator(self,num_trajs):
+        
+        self.buffer = []
+        for n in range(num_trajs):
+            self.rollout(save_in_buffer = True)
 
+        return self.buffer
+
+    def rollout(self,save_in_buffer = False):
+        
+        traj = []
         self.belief = np.ones(self.states) / self.states
         env = self.env
         env.reset()
 
         action = self._select_action(self.belief)
         observation,reward,info,done = env.step(action)
-        print(action,observation,reward)
+        traj.append((observation,action,reward))
+
         while not done:
             
             likelihood = np.ones(self.states) / self.states
@@ -37,8 +49,13 @@ class ToyPolicy():
             self.belief = self.belief / self.belief.sum()
 
             action = self._select_action(self.belief)
-            observation,reward,info,done = env.step(action)
-            print(action,observation,reward)
+            next_observation,reward,info,done = env.step(action)
+
+            traj.append((observation,action,reward))
+            observation = next_observation
+
+        if save_in_buffer:
+            self.buffer.append(traj)
 
     def _select_action(self,belief):
         

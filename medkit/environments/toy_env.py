@@ -8,7 +8,8 @@ class ToyEnv(gym.Env):
     '''
     def __init__(self,
                 n_diseases    : int,
-                test_accuracy : float):
+                test_accuracy : float,
+                **kwargs):
         super(ToyEnv, self).__init__()
 
         self.action_space = spaces.Discrete(n_diseases + 2)
