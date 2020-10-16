@@ -3,8 +3,8 @@ import gym
 from gym import spaces
 import warnings
 
-from environments.toy_env import ToyEnv
-from policies.toy_policy import ToyPolicy
+from .environments.toy_env import ToyEnv
+from .policies.toy_policy import ToyPolicy
 
 
 def generate_data(setting = 'Optimal Stopping',
@@ -32,6 +32,14 @@ def generate_data(setting = 'Optimal Stopping',
         data = {'training':train_data,'testing':test_data}
 
     return data
+
+def make_gym(setting = 'Optimal Stopping',
+                **kwargs):
+
+    env_dict = {'Optimal Stopping':ToyEnv}
+    env = env_dict[setting](**kwargs)
+
+    return env
 
 if __name__ == '__main__':
 
