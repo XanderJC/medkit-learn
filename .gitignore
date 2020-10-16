@@ -11,3 +11,4 @@
 .pytest_cache
 test_script.py
 .DS_Store
+*.egg-info
