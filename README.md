@@ -64,3 +64,19 @@ env = mk.make_gym(setting = 'Cystic Fibrosis',
 observation = env.reset()
 observation, reward, done, info = env.step(action)
 ```
+
+### Proof of concept
+
+I've implemented a toy optimal stopping problem as proof of concept. 
+With package installed can be can be called simply as:
+
+```python
+data = mk.generate_data(setting = 'Optimal Stopping',
+						test_split       = True,
+                        n_diseases      = 6,
+                        test_accuracy   = 0.3,
+                        conf_threshold  = 0.8,
+                        test_acc_belief = 0.3)
+```
+
+We then have a synthetic dataset of observation, action, reward tuples. Easy.
