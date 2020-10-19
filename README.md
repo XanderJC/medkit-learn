@@ -72,7 +72,7 @@ With package installed can be can be called simply as:
 
 ```python
 data = mk.generate_data(setting = 'Optimal Stopping',
-						test_split       = True,
+						test_split      = True,
                         n_diseases      = 6,
                         test_accuracy   = 0.3,
                         conf_threshold  = 0.8,
