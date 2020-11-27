@@ -12,3 +12,4 @@
 test_script.py
 .DS_Store
 *.egg-info
+*_pg.ipynb

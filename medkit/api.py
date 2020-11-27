@@ -6,7 +6,52 @@ import warnings
 from .environments.toy_env import ToyEnv
 from .policies.toy_policy import ToyPolicy
 
+class scenario():
+    def __init__(self,domain,environment,policy):
 
+        env_dict = {}
+        pol_dict = {}
+        assert environment in env_dict, 'Not a valid envrionment.'
+        assert policy in pol_dict, 'Not a valid policy.'
+
+        # Create env and pol objects and initialise with the domain
+        self.env = env_dict[environment](domain)
+        self.pol = pol_dict[policy](domain)
+
+    def batch_generate(self):
+        data = None
+        return data
+
+
+
+def generate_data(domain        = 'ICU',
+                    environment = 'IOHMM',
+                    policy      = 'BC',
+                    size        = 100,
+                    test_split  = False,
+                    **kwargs):
+    '''
+    Base API function for generating a batch dataset 
+
+    '''
+
+    env_dict = {}
+    pol_dict = {}
+    assert environment in env_dict, 'Not a valid envrionment.'
+    assert policy in pol_dict, 'Not a valid policy.'
+
+    # Create env and pol objects and initialise with the domain
+    env = env_dict[environment]
+    pol = pol_dict[policy]
+
+    scene = scenario(domain,env,pol)
+
+    data = scene.batch_generate(**kwargs)
+
+    return data
+
+
+'''
 def generate_data(setting = 'Optimal Stopping',
                     policy = 'Tester',
                     size = 100,
@@ -53,3 +98,4 @@ if __name__ == '__main__':
     print(len(data))
     print(data[0])  
 
+'''
