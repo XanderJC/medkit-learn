@@ -1,5 +1,6 @@
+from .__head__ import *
 
-class BasePol():
+class BasePol(ABC):
     '''
     Base Policy class
     '''
@@ -9,20 +10,24 @@ class BasePol():
         self.model_config = domain.get_pol_config(self.name)
         # model_config is a dictionary of hyperparameters (e.g. layer sizes)
         # for the model 
+
+        self.unpack_domain(domain)
         return
 
     def unpack_domain(self,domain):
-        
+        '''
+        Set meta-data and hyperparameters
+        '''
         return
 
+    @abstractmethod
     def load_pretrained(self):
+        pass
 
-        return
-
+    @abstractmethod
     def train(self):
+        pass
 
-        return
-
-    def select_action(self,state):
-
-        return
+    @abstractmethod
+    def select_action(self,history):
+        pass

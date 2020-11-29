@@ -1,4 +1,4 @@
-import gym
+from .__head__ import *
 
 class BaseEnv(gym.Env):
     '''
@@ -9,21 +9,23 @@ class BaseEnv(gym.Env):
         self.name = None
         self.model_config = domain.get_env_config(self.name)
         # model_config is a dictionary of hyperparameters (e.g. layer sizes)
-        # for the model 
+        # for the model
 
         return
 
     def unpack_domain(self,domain):
-        
+        '''
+        Set meta-data and hyperparameters
+        '''
         return
 
+    @abstractmethod
     def load_pretrained(self):
+        pass
 
-        return
-
+    @abstractmethod
     def train(self):
-
-        return
+        pass
 
     '''
     Envrionment inherits from the gym.Env class: the following are the required

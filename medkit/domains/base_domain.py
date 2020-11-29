@@ -1,5 +1,6 @@
+from .__head__ import *
 
-class BaseDomain():
+class BaseDomain(ABC):
     '''
     Domain objects contain the relevant meta-data to be passed to both environment
     and policy classes. In this way they act as essentially config files.
