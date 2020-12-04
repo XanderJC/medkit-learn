@@ -13,9 +13,9 @@ class ICUDomain(BaseDomain):
 
         self.y_dim         = 2
 
-        RNN_config = {'hidden_dim':128,'lr':1e-4,'hidden_layers':3,'adam_betas':(0.9,0.9)}
+        RNN_config = {'hidden_dim':128,'lr':1e-4,'hidden_layers':3,'adam_betas':(0.9,0.9),'epochs':5}
         self.env_config_dict = {'RNN':RNN_config}
-        self.pol_config_dict = {'RNN':None}
+        self.pol_config_dict = {'RNN':RNN_config}
         return
 
 

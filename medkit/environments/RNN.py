@@ -1,10 +1,9 @@
 from .__head__ import *
 from .base_env import BaseEnv
-from pkg_resources import resource_filename
 
-class RNN(nn.Module):
+class RNN_env(nn.Module):
     def __init__(self, domain):
-        super(RNN, self).__init__()
+        super(RNN_env, self).__init__()
         self.name = 'RNN'
         self.hidden_size = domain.env_config['hidden_dim']
         self.num_layers = domain.env_config['hidden_layers']
@@ -54,9 +53,9 @@ class RNN(nn.Module):
         return -log_l / batch_size
 
     def train(self,data_loader):
-        optimizer = torch.optim.Adam(model.parameters(),lr=0.001)
+        optimizer = torch.optim.Adam(model.parameters(),lr=self.hyper['lr'],betas= self.hyper['adam_betas'])
         total_step = len(data_loader)
-        for epoch in range(2):
+        for epoch in range(self.hyper['epochs']):
             for i,batch in enumerate(data_loader):
 
                 loss = self.loss(batch)
@@ -80,18 +79,23 @@ class RNNEnv(BaseEnv):
         self.domain = domain
         self.domain.get_env_config(self.name)
 
-        self.model = RNN(domain)
+        self.model = RNN_env(domain)
+        self.load_pretrained()
 
     def load_pretrained(self):
         path = resource_filename("environments",f"saved_models/{self.domain.name}_{self.name}.pth")
         #path = f'environments/saved_models/{self.domain.name}_{self.name}.pth'
         self.model.load_state_dict(torch.load(path))
-        pass
+        return
+
+    def train(self,data_loader):
+        self.model.train(data_loader)
+        return
 
 
     def step(self,action):
 
-        action = torch.tensor(action).reshape((1,1,1))
+        action = action.reshape((1,1,1))
         x = torch.cat((self.prev_obs,action),2)
 
         out, (self.hn,self.cn) = self.model.lstm(x, (self.hn, self.cn))
