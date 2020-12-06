@@ -33,7 +33,7 @@ class RNN_pol(nn.Module):
         pred = self.forward(x_series)
         pred_flat = pred.reshape((pred.shape[0]*pred.shape[1],pred.shape[2]))
         y_flat = y_series.reshape((pred.shape[0]*pred.shape[1])).long()
-        mask_flat = mask.reshape((pred.shape[0]*pred.shape[1],1))
+        mask_flat = mask.reshape((pred.shape[0]*pred.shape[1]))
         nll = nn.CrossEntropyLoss(reduction='none')
         flat_loss = nll(pred_flat,y_flat)
 
