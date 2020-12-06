@@ -11,7 +11,7 @@ class BasePol(ABC):
         # model_config is a dictionary of hyperparameters (e.g. layer sizes)
         # for the model 
 
-        self.unpack_domain(domain)
+        self.model = None # torch.nn.Module which for unified save/load/train
         return
 
     def unpack_domain(self,domain):
@@ -20,13 +20,14 @@ class BasePol(ABC):
         '''
         return
 
-    @abstractmethod
     def load_pretrained(self):
+        path = resource_filename("policies",f"saved_models/{self.domain.name}_{self.name}.pth")
+        self.model.load_state_dict(torch.load(path))
         pass
-
-    @abstractmethod
-    def train(self):
-        pass
+    
+    def train(self,data_loader):
+        self.model.train(data_loader)
+        return
 
     @abstractmethod
     def select_action(self,history):

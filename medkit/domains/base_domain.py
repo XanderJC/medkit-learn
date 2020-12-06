@@ -42,3 +42,23 @@ class BaseDomain(ABC):
         Print/return relevant metadata 
         '''
         return
+
+class BaseDataset(torch.utils.data.Dataset):
+    '''
+    Base Dataset class to be passed to torch Dataloader so train functions can be unified.
+    Not particularly designed for end-user, but for pre-training models.
+    '''
+    def __init__(self):
+        self.N = None #No. of items in dataset
+        self.X_static = None # Static features [N,static_dim]
+        self.X_series = None # Series features [N,max_seq_length,series_dim]
+        self.X_mask = None # Mask [N,max_seq_length]
+        self.y_series = None # Static features [N,max_seq_length]
+
+    def __len__(self):
+        'Total number of samples'
+        return self.N
+
+    def __getitem__(self, index):
+        'Generates one batch of data'
+        return self.X_static[index], self.X_series[index], self.X_mask[index], self.y_series[index]

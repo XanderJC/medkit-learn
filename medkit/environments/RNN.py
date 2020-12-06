@@ -82,16 +82,6 @@ class RNNEnv(BaseEnv):
         self.model = RNN_env(domain)
         self.load_pretrained()
 
-    def load_pretrained(self):
-        path = resource_filename("environments",f"saved_models/{self.domain.name}_{self.name}.pth")
-        #path = f'environments/saved_models/{self.domain.name}_{self.name}.pth'
-        self.model.load_state_dict(torch.load(path))
-        return
-
-    def train(self,data_loader):
-        self.model.train(data_loader)
-        return
-
 
     def step(self,action):
 
