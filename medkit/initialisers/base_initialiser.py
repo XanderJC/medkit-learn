@@ -1,13 +1,14 @@
 from .__head__ import *
 
-class BasePol(ABC):
+class BaseInit(ABC):
     '''
-    Base Policy class
+    Base Initialiser class
     '''
     def __init__(self,domain):
         
         self.name = None
-        self.model_config = domain.get_pol_config(self.name)
+        #self.model_config = domain.get_init_config(self.name)
+        self.model_config = None
         # model_config is a dictionary of hyperparameters (e.g. layer sizes)
         # for the model 
 
@@ -15,7 +16,7 @@ class BasePol(ABC):
         return
 
     def load_pretrained(self):
-        path = resource_filename("policies",f"saved_models/{self.domain.name}_{self.name}.pth")
+        path = resource_filename("initialisers",f"saved_models/{self.domain.name}_{self.name}.pth")
         self.model.load_state_dict(torch.load(path))
         pass
     
@@ -24,5 +25,5 @@ class BasePol(ABC):
         return
 
     @abstractmethod
-    def select_action(self,history):
+    def sample(self):
         pass

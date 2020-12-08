@@ -12,6 +12,8 @@ class BaseDomain(ABC):
         self.static_in_dim = None #int
         self.series_in_dim = None #int
 
+        self.static_bin_dim = None #int
+        self.static_con_dim = None #int
         self.out_dim       = None #int
         self.bin_out_dim   = None #int number of binary variables
         self.con_out_dim   = None #int number of continuous variables
@@ -34,6 +36,12 @@ class BaseDomain(ABC):
 
         pol_config = None
         self.pol_config = pol_config
+        return
+    
+    def get_init_config(self,name):
+
+        init_config = None
+        self.init_config = init_config
         return
 
 

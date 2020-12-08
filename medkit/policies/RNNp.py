@@ -40,14 +40,13 @@ class RNN_pol(nn.Module):
         return (flat_loss * mask_flat).sum() / batch_size
 
     def train(self,data_loader):
-        optimizer = torch.optim.Adam(model.parameters(),lr=self.hyper['lr'],betas= self.hyper['adam_betas'])
+        optimizer = torch.optim.Adam(self.parameters(),lr=self.hyper['lr'],betas= self.hyper['adam_betas'])
         total_step = len(data_loader)
         for epoch in range(self.hyper['epochs']):
             for i,batch in enumerate(data_loader):
-
-                loss = self.loss(batch)
-                # Backward and optimize
+                
                 optimizer.zero_grad()
+                loss = self.loss(batch)
                 loss.backward()
                 optimizer.step()
         

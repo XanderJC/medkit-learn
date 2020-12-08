@@ -12,6 +12,8 @@ class ICUDomain(BaseDomain):
         self.static_in_dim = 2 
         self.series_in_dim = 27
 
+        self.static_bin_dim = 0
+        self.static_con_dim = 2
         self.out_dim       = 27
         self.bin_out_dim   = 2
         self.con_out_dim   = 25
@@ -19,8 +21,11 @@ class ICUDomain(BaseDomain):
         self.y_dim         = 2
 
         RNN_config = {'hidden_dim':128,'lr':1e-4,'hidden_layers':3,'adam_betas':(0.9,0.9),'epochs':5}
+        VAE_config = {'latent_size':10,'hidden_units':100,'lr':1e-4,
+                'hidden_layers':3,'adam_betas':(0.9,0.9),'epochs':10}
         self.env_config_dict = {'RNN':RNN_config}
         self.pol_config_dict = {'RNN':RNN_config}
+        self.init_config_dict = {'VAE':VAE_config}
 
         self.static_names = ['age', 'weight']
         self.series_names  = ['temphigh', 'heartratehigh', 'sysbplow', 'diasbplow', 'meanbplow', 'spo2high',
@@ -43,6 +48,12 @@ class ICUDomain(BaseDomain):
         pol_config = self.pol_config_dict[name]
         self.pol_config = pol_config
         return pol_config
+    
+    def get_init_config(self,name):
+
+        init_config = self.init_config_dict[name]
+        self.init_config = init_config
+        return init_config
 
 
     def details(self):

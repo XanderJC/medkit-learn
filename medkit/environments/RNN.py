@@ -1,5 +1,6 @@
 from .__head__ import *
 from .base_env import BaseEnv
+from medkit.initialisers.VAE import VAEInit
 
 class RNN_env(nn.Module):
     def __init__(self, domain):
@@ -53,14 +54,13 @@ class RNN_env(nn.Module):
         return -log_l / batch_size
 
     def train(self,data_loader):
-        optimizer = torch.optim.Adam(model.parameters(),lr=self.hyper['lr'],betas= self.hyper['adam_betas'])
+        optimizer = torch.optim.Adam(self.parameters(),lr=self.hyper['lr'],betas= self.hyper['adam_betas'])
         total_step = len(data_loader)
         for epoch in range(self.hyper['epochs']):
             for i,batch in enumerate(data_loader):
-
-                loss = self.loss(batch)
-                # Backward and optimize
+                
                 optimizer.zero_grad()
+                loss = self.loss(batch)
                 loss.backward()
                 optimizer.step()
         
@@ -81,6 +81,8 @@ class RNNEnv(BaseEnv):
 
         self.model = RNN_env(domain)
         self.load_pretrained()
+
+        self.initialiser = VAEInit(domain)
 
 
     def step(self,action):
@@ -116,9 +118,10 @@ class RNNEnv(BaseEnv):
         self.cn = torch.zeros(self.model.num_layers, 1, self.model.hidden_size)
 
         # Generate initial static and series observations - TO-DO swap these for GANs
-        init_obs = torch.distributions.normal.Normal(loc=0,scale=1).sample((1,1,self.domain.series_in_dim))
-        static_obs = torch.distributions.normal.Normal(loc=0,scale=1).sample((1,1,self.domain.static_in_dim))
+        #init_obs = torch.distributions.normal.Normal(loc=0,scale=1).sample((1,1,self.domain.series_in_dim))
+        #static_obs = torch.distributions.normal.Normal(loc=0,scale=1).sample((1,1,self.domain.static_in_dim))
 
+        init_obs,static_obs = self.initialiser.sample()
         self.prev_obs = init_obs
 
         return static_obs.reshape((self.domain.static_in_dim)),init_obs.reshape((self.domain.series_in_dim))
