@@ -36,7 +36,7 @@ class RNN_pol(nn.Module):
         mask_flat = mask.reshape((pred.shape[0]*pred.shape[1]))
         nll = nn.CrossEntropyLoss(reduction='none')
         flat_loss = nll(pred_flat,y_flat)
-
+        print((pred_flat))
         return (flat_loss * mask_flat).sum() / batch_size
 
     def train(self,data_loader):
@@ -59,7 +59,7 @@ class RNN_pol(nn.Module):
 
 
 class RNNPol(BasePol):
-    def __init__(self,domain):
+    def __init__(self,domain,load=True):
         
         self.name = 'RNN'
         
@@ -67,7 +67,8 @@ class RNNPol(BasePol):
         self.domain.get_pol_config(self.name)
 
         self.model = RNN_pol(domain)
-        self.load_pretrained()
+        if load:
+            self.load_pretrained()
 
 
     def select_action(self,history):

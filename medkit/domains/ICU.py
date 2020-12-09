@@ -20,11 +20,12 @@ class ICUDomain(BaseDomain):
 
         self.y_dim         = 2
 
-        RNN_config = {'hidden_dim':128,'lr':1e-4,'hidden_layers':3,'adam_betas':(0.9,0.9),'epochs':5}
-        VAE_config = {'latent_size':10,'hidden_units':100,'lr':1e-4,
-                'hidden_layers':3,'adam_betas':(0.9,0.9),'epochs':10}
+        RNN_config = {'hidden_dim':128,'lr':1e-2,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
+        RNN_p_config = {'hidden_dim':128,'lr':1e-4,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
+        VAE_config = {'latent_size':10,'hidden_units':100,'lr':1e-3,
+                'hidden_layers':3,'adam_betas':(0.9,0.9),'epochs':20}
         self.env_config_dict = {'RNN':RNN_config}
-        self.pol_config_dict = {'RNN':RNN_config}
+        self.pol_config_dict = {'RNN':RNN_p_config}
         self.init_config_dict = {'VAE':VAE_config}
 
         self.static_names = ['age', 'weight']
@@ -68,7 +69,7 @@ class icu_dataset(BaseDataset):
     Dataset to be passed to a torch DataLoader
     '''
     def __init__(self):
-
+        '''
         path = resource_filename("data","mimic/mimic.p")
         with open(path, 'rb') as f:
             MIMIC_data = pickle.load(f)
@@ -77,14 +78,15 @@ class icu_dataset(BaseDataset):
         scaler_static = StandardScaler()
         X_static = scaler_static.fit_transform(MIMIC_data['static'])
 
+        self.N,T_max,_ = XX.shape
+        self.X_mask = torch.zeros(self.N,T_max)
+        self.X_mask[:,:] = torch.FloatTensor(XX[:,:,0] != 0)
+
         scaler = StandardScaler()
         X_unrolled  = XX.reshape((XX.shape[0] * XX.shape[1], XX.shape[2]))
         X_unrolled[:,:25]  = scaler.fit_transform(X_unrolled[:,:25])
         X_long  = X_unrolled.reshape((XX.shape[0], XX.shape[1], XX.shape[2]))  
 
-        self.N,T_max,_ = XX.shape
-        self.X_mask = torch.zeros(self.N,T_max)
-        self.X_mask[:,:] = torch.FloatTensor(XX[:,:,0] != 0)
 
         scaler = StandardScaler()
         X_unrolled  = XX.reshape((XX.shape[0] * XX.shape[1], XX.shape[2]))
@@ -94,3 +96,28 @@ class icu_dataset(BaseDataset):
         self.X_static = torch.FloatTensor(X_static)
         self.X_series = torch.FloatTensor(X_long[:,:,:-1])
         self.y_series = torch.FloatTensor(X_long[:,:,-1])
+        '''
+
+        path = resource_filename("data","mimic/mimic.p")
+        with open(path, 'rb') as f:
+            MIMIC_data = pickle.load(f)
+
+        X_series = MIMIC_data["longitudinal"][:, :, :]
+        self.N = X_series.shape[0]
+        X_static = MIMIC_data['static']
+
+        x_static = torch.FloatTensor(X_static)
+        y_series = torch.FloatTensor(X_series[:,:,-1])
+        x_mask = torch.FloatTensor(X_series[:,:,0] != 0)
+        x_series = torch.FloatTensor(X_series[:,:,:-1])
+
+        domain = ICUDomain()
+        scale = scaler(domain)
+
+        normed_series = scale.fit_series(x_series,x_mask)
+        normed_static = scale.fit_static(x_static)
+
+        self.X_static = normed_static
+        self.X_series = normed_series
+        self.X_mask = x_mask
+        self.y_series = y_series

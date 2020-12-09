@@ -72,7 +72,7 @@ class RNN_env(nn.Module):
         torch.save(self.state_dict(), path)
 
 class RNNEnv(BaseEnv):
-    def __init__(self,domain):
+    def __init__(self,domain,load=True):
         
         self.name = 'RNN'
         
@@ -80,7 +80,8 @@ class RNNEnv(BaseEnv):
         self.domain.get_env_config(self.name)
 
         self.model = RNN_env(domain)
-        self.load_pretrained()
+        if load:
+            self.load_pretrained()
 
         self.initialiser = VAEInit(domain)
 

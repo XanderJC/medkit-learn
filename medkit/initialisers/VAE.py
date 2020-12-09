@@ -120,14 +120,15 @@ class VAE(nn.Module):
 
 
 class VAEInit(BaseInit):
-    def __init__(self,domain):
+    def __init__(self,domain,load=True):
         super(VAEInit, self).__init__(domain)
 
         self.domain = domain
         self.name = 'VAE'
         self.model_config = domain.get_init_config(self.name)
         self.model = VAE(domain)
-        self.load_pretrained()
+        if load:
+            self.load_pretrained()
 
     def sample(self):
 
