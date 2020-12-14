@@ -19,8 +19,8 @@ class BasePol(ABC):
         self.model.load_state_dict(torch.load(path))
         pass
     
-    def train(self,data_loader):
-        self.model.train(data_loader)
+    def train(self,dataset,batch_size=128):
+        self.model.train(dataset,batch_size=batch_size)
         return
 
     @abstractmethod

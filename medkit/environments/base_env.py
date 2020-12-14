@@ -22,11 +22,11 @@ class BaseEnv(gym.Env):
         self.model.load_state_dict(torch.load(path))
         return
 
-    def train(self,data_loader):
+    def train(self,dataset,batch_size=128):
         '''
         Takes a torch DataLoader(BaseDataset).
         '''
-        self.model.train(data_loader)
+        self.model.train(dataset,batch_size=batch_size)
         return
 
     '''

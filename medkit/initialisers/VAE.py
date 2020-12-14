@@ -100,7 +100,8 @@ class VAE(nn.Module):
 
         return kl_loss - (ll_loss/batch_size)
 
-    def train(self,data_loader):
+    def train(self,dataset,batch_size=128):
+        data_loader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True)
         optimizer = torch.optim.Adam(self.parameters(),lr=self.hyper['lr'],betas=self.hyper['adam_betas'])
         total_step = len(data_loader)
         for epoch in range(self.hyper['epochs']):
