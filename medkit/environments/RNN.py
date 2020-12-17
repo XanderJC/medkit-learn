@@ -9,7 +9,7 @@ class RNN_env(nn.Module):
         self.hidden_size = domain.env_config['hidden_dim']
         self.num_layers = domain.env_config['hidden_layers']
         self.input_size = domain.series_in_dim + 1
-        self.lstm = nn.LSTM(self.input_size, self.hidden_size, self.num_layers, batch_first=True)
+        self.lstm = opacus.layers.DPLSTM(self.input_size, self.hidden_size, batch_first=True)
         self.fc_bin = nn.Linear(self.hidden_size, domain.bin_out_dim)
         self.fc_cont = nn.Linear(self.hidden_size, 2 * domain.con_out_dim)
         self.bin_out_dim = domain.bin_out_dim
@@ -54,8 +54,19 @@ class RNN_env(nn.Module):
         return -log_l / batch_size
 
     def train(self,dataset,batch_size=128):
-        data_loader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True)
+        data_loader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True,drop_last=True)
         optimizer = torch.optim.Adam(self.parameters(),lr=self.hyper['lr'],betas= self.hyper['adam_betas'])
+        sample_size = len(dataset)
+        privacy_engine = PrivacyEngine(
+            self,
+            batch_size,
+            sample_size,
+            alphas=[10, 100],
+            noise_multiplier=0.1,
+            max_grad_norm=1.0,
+            secure_rng = True
+            )
+        privacy_engine.attach(optimizer)
         total_step = len(data_loader)
         for epoch in range(self.hyper['epochs']):
             for i,batch in enumerate(data_loader):

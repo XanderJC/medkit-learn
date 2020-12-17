@@ -41,7 +41,7 @@ class scenario(gym.Env):
 
             done = False
             seq_length = 1
-            while not (done & (seq_length < max_seq_length)):
+            while ((not done) & (seq_length < max_seq_length)):
 
                 action = info['predicted_action']
                 observation,reward,info,done = self.step(action)

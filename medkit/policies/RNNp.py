@@ -8,7 +8,7 @@ class RNN_pol(nn.Module):
         self.hidden_size = domain.pol_config['hidden_dim']
         self.num_layers = domain.pol_config['hidden_layers']
         self.input_size = domain.series_in_dim
-        self.lstm = nn.LSTM(self.input_size, self.hidden_size, self.num_layers, batch_first=True)
+        self.lstm = opacus.layers.DPLSTM(self.input_size, self.hidden_size, batch_first=True)
         self.fc = nn.Linear(self.hidden_size, domain.y_dim)
         self.domain = domain
         self.hyper = domain.pol_config
@@ -40,8 +40,19 @@ class RNN_pol(nn.Module):
         return (flat_loss * mask_flat).sum() / batch_size
 
     def train(self,dataset,batch_size=128):
-        data_loader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True)
+        data_loader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True,drop_last=True)
         optimizer = torch.optim.Adam(self.parameters(),lr=self.hyper['lr'],betas= self.hyper['adam_betas'])
+        sample_size = len(dataset)
+        privacy_engine = PrivacyEngine(
+            self,
+            batch_size,
+            sample_size,
+            alphas=[10, 100],
+            noise_multiplier=0.1,
+            max_grad_norm=1.0,
+            secure_rng = True
+            )
+        privacy_engine.attach(optimizer)
         total_step = len(data_loader)
         for epoch in range(self.hyper['epochs']):
             for i,batch in enumerate(data_loader):

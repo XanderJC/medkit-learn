@@ -15,7 +15,7 @@ data = icu_dataset()
 
 # Note hyperparameters for training including learning rate and epochs are
 # stored in domain.{env,pol,init}_config
-test_env.train(data,batch_size=64)
+test_pol.train(data,batch_size=64)
 
 # Save model by uncommenting
 #test_pol.model.save_model()

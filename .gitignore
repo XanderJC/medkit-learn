@@ -2,6 +2,7 @@
 *.xml
 *.iml
 *.csv
+*.csv.gz
 *.Rhistory
 .idea/
 .coverage
