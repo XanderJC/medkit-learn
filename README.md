@@ -1,5 +1,7 @@
 
-# Working title: Medkit-learn(ing) Environment
+# The Medkit-learn(ing) Environment
+
+![](figs/logo.png)
 
 ### High Level Overview
 
