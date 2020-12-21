@@ -18,4 +18,7 @@ data = icu_dataset()
 test_pol.train(data,batch_size=64)
 
 # Save model by uncommenting
-#test_pol.model.save_model()
+test_pol.model.save_model()
+
+test_init.train(data,batch_size=64)
+test_init.model.save_model()

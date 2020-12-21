@@ -5,10 +5,6 @@ import warnings
 from tqdm import tqdm
 import torch
 
-from medkit.environments.RNN import RNNEnv
-from medkit.domains.ICU import ICUDomain
-from medkit.policies.RNNp import RNNPol
-
 class scenario(gym.Env):
     def __init__(self,domain,environment,policy):
         '''
@@ -18,17 +14,10 @@ class scenario(gym.Env):
         Inherits from gym.Env for simple simulation access to the environment which
         also provides decision support in terms of predicted actions from the policy. 
         '''
-        dom_dict = {'ICU':ICUDomain}
-        env_dict = {'RNN':RNNEnv}
-        pol_dict = {'RNN':RNNPol}
 
-        assert domain in dom_dict, 'Not a valid domain.'
-        assert environment in env_dict, 'Not a valid envrionment.'
-        assert policy in pol_dict, 'Not a valid policy.'
-
-        self.dom = dom_dict[domain]()
-        self.env = env_dict[environment](self.dom)
-        self.pol = pol_dict[policy](self.dom)
+        self.dom = domain
+        self.env = environment
+        self.pol = policy
 
     def batch_generate(self,num_trajs=10,max_seq_length=50):
         static_data = np.zeros((num_trajs,self.dom.static_in_dim))

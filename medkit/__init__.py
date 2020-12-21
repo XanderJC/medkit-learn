@@ -1,1 +1,1 @@
-from .api import generate_data
+from .api import batch_generate,live_simulate

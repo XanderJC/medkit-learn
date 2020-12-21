@@ -34,7 +34,8 @@ class ICUDomain(BaseDomain):
                       'bicarbonatelow', 'creatininehigh', 'creatininelow', 'hematocrithigh',
                       'hematocritlow', 'hemoglobinhigh', 'hemoglobinlow', 'platelethigh',
                       'plateletlow', 'potassiumlow', 'potassiumhigh', 'bunhigh', 'bunlow',
-                      'wbchigh', 'wbclow', 'antibiotics', 'norepinephrine', 'mechanical_ventilator']
+                      'wbchigh', 'wbclow', 'antibiotics', 'norepinephrine']
+        self.action_names = ['mechanical_ventalator']
         return
 
 
