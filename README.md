@@ -1,6 +1,6 @@
 
 
-![](figs/logo.png = 300x100)
+<img src="figs/logo.png" height="100" width="300">
 
 # The Medkit-learn(ing) Environment
 
