@@ -10,7 +10,6 @@ from medkit.domains.base_domain import BaseDomain
 from medkit.environments.base_env import BaseEnv
 from medkit.policies.base_policy import BasePol
 
-import inspect
 import pandas as pd
 import numpy as np
 import torch 
@@ -23,6 +22,7 @@ def batch_generate(domain        = 'ICU',
                     size        = 100,
                     valid_size  = None,
                     test_size   = None,
+                    max_length  = 50,
                     scale       = False,
                     out         = 'numpy',
                     **kwargs):
@@ -64,19 +64,19 @@ def batch_generate(domain        = 'ICU',
     '''
     assert (type(size) is int) & size > 0, 'size must be a positive integer.'
     print('Producing training data...')
-    training_data = scene.batch_generate(num_trajs=size)
+    training_data = scene.batch_generate(num_trajs=size,max_seq_length=max_length)
     data = {'training':training_data}
 
     if valid_size is not None:
         assert (type(valid_size) is int) & valid_size > 0, 'valid_size must be a positive integer.'
         print('Producing validation data...')
-        valid_data = scene.batch_generate(num_trajs=valid_size)
+        valid_data = scene.batch_generate(num_trajs=valid_size,max_seq_length=max_length)
         data['validation'] = valid_data
 
     if test_size is not None:
-        assert (type(test_size) is int) & test_size > 0, 'test_ize must be a positive integer.'
+        assert (type(test_size) is int) & test_size > 0, 'test_size must be a positive integer.'
         print('Producing testing data...')
-        test_data = scene.batch_generate(num_trajs=test_size)
+        test_data = scene.batch_generate(num_trajs=test_size,max_seq_length=max_length)
         data['testing'] = test_data
 
     '''

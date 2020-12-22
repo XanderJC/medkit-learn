@@ -138,3 +138,11 @@ class RNNEnv(BaseEnv):
         self.prev_obs = init_obs
 
         return static_obs.reshape((self.domain.static_in_dim)),init_obs.reshape((self.domain.series_in_dim))
+
+    def render(self):
+
+        obs = list(self.prev_obs.reshape((self.domain.series_in_dim)))
+
+        for name,value in zip(self.domain.series_names,obs):
+            print(f'{name}: {value}')
+

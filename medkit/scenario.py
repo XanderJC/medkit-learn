@@ -9,7 +9,7 @@ class scenario(gym.Env):
     def __init__(self,domain,environment,policy):
         '''
         Main object of medkit.
-        Takes domain, envrionemnt, and policy strings to build the scene.
+        Takes a domain, environemnt, and policy to build the scene.
 
         Inherits from gym.Env for simple simulation access to the environment which
         also provides decision support in terms of predicted actions from the policy. 

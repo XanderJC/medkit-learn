@@ -77,50 +77,5 @@ class scaler(nn.Module):
         self.load_state_dict(torch.load(path))
         return
 
-if __name__ == '__main__':
-
-    domain = ICUDomain()
-    test = scaler(domain)
-    test2 = scaler(domain)
-    test2.load_params()
-    '''
-    data = icu_dataset()
-    training_generator = torch.utils.data.DataLoader(data,batch_size=64,shuffle=True)
-    list_train = list(training_generator)
-    x_static,x_series,mask,y_series = list_train[0]
-    '''
-
-    path = resource_filename("data","mimic/mimic.p")
-    with open(path, 'rb') as f:
-        MIMIC_data = pickle.load(f)
-
-    X_series = MIMIC_data["longitudinal"][:, :, :]
-
-    X_static = MIMIC_data['static']
-
-    x_static = torch.tensor(X_static)
-    y_series = torch.tensor(X_series[:,:,-1])
-    x_mask = torch.FloatTensor(X_series[:,:,0] != 0)
-    x_series = torch.tensor(X_series[:,:,:-1])
-
-    normed = test.fit_series(x_series,x_mask)
-
-    print(x_series[0])
-    print(normed.shape)
-    print(normed[0])
-
-    unnormed = test2.rescale_series(normed,x_mask)
-
-    print(unnormed[0])
-
-    normed = test.fit_static(x_static)
-
-    unnormed = test2.rescale_static(normed)
-
-    print(x_static)
-    print(normed)
-    print(unnormed)
-
-    #test.save_params()
 
     
