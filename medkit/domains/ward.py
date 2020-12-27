@@ -1,20 +1,24 @@
 from .__head__ import *
 from .base_domain import BaseDomain,BaseDataset
 
-class WardsDomain(BaseDomain):
+class WardDomain(BaseDomain):
 
-    def __init__(self):
-        self.name          = 'wards'
+    def __init__(self,y_dim=2):
+        self.base_name     = 'ward'
+        self.name          = self.base_name + f'_{y_dim}'
         self.static_in_dim = 49 
-        self.series_in_dim = 36
+        self.series_in_dim = 35
 
         self.static_bin_dim = 48
         self.static_con_dim = 1
-        self.out_dim       = 36
+        self.out_dim       = 35
         self.bin_out_dim   = 16
-        self.con_out_dim   = 20
+        self.con_out_dim   = 19
 
-        self.y_dim         = 4
+        valid_y = [2,4,8]
+        assert y_dim in valid_y
+
+        self.y_dim         = y_dim
 
         RNN_config = {'hidden_dim':128,'lr':1e-2,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
         RNN_p_config = {'hidden_dim':128,'lr':1e-4,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
@@ -55,32 +59,18 @@ class WardsDomain(BaseDomain):
             'O2 Device: Heliox', 'O2 Device: High flow nasal cannula',
             'O2 Device: Nasal cannula', 'O2 Device: Non-rebreather mask',
             'O2 Device: None (Room air)', 'O2 Device: Other (Comment)',
-            'O2 Device: Partial rebreather mask', 'O2 Device: Simple mask',
+            'O2 Device: Partial rebreather mask',
             'O2 Device: Trach', 'O2 Device: Trach Collar',
             'O2 Device: Transtracheal catheter', 'O2 Device: Venturi mask']
-        self.action_names = ['O2 Device: Bi-PAP','O2 Device: CPAP']
+        self.action_names = ['O2 Device: Bi-PAP']
+        if y_dim > 2:
+            self.action_names += ['O2 Device: CPAP']
+        if y_dim > 4:
+            self.action_names += ['O2 Device: Simple mask']
         return
 
-    def get_env_config(self,name):
-        
-        env_config = self.env_config_dict[name]
-        self.env_config = env_config
-        return env_config
 
-    def get_pol_config(self,name):
-
-        pol_config = self.pol_config_dict[name]
-        self.pol_config = pol_config
-        return pol_config
-    
-    def get_init_config(self,name):
-
-        init_config = self.init_config_dict[name]
-        self.init_config = init_config
-        return init_config
-
-
-class wards_dataset(BaseDataset):
+class ward_dataset(BaseDataset):
     '''
     Dataset to be passed to a torch DataLoader
     '''
