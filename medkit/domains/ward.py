@@ -4,16 +4,16 @@ from .base_domain import BaseDomain,BaseDataset
 class WardDomain(BaseDomain):
 
     def __init__(self,y_dim=2):
-        self.base_name     = 'ward'
-        self.name          = self.base_name + f'_{y_dim}'
-        self.static_in_dim = 49 
-        self.series_in_dim = 35
+        self.base_name      = 'ward'
+        self.name           = self.base_name + f'_{y_dim}'
+        self.static_in_dim  = 49 
+        self.series_in_dim  = 35
 
         self.static_bin_dim = 48
         self.static_con_dim = 1
-        self.out_dim       = 35
-        self.bin_out_dim   = 16
-        self.con_out_dim   = 19
+        self.out_dim        = 35
+        self.bin_out_dim    = 16
+        self.con_out_dim    = 19
 
         valid_y = [2,4,8]
         assert y_dim in valid_y
@@ -49,7 +49,7 @@ class WardDomain(BaseDomain):
             'cpt: Allogeneic stem cell transplantation',
             'cpt: Autologous stem cell transplantation', 'cpt: Chemo', 'cpt: NA',
             'icu_admission']
-        self.series_names  = ['Best Motor Response', 'Best Verbal Response', 'CHLORIDE',
+        self.series_names = ['Best Motor Response', 'Best Verbal Response', 'CHLORIDE',
             'CREATINEINE', 'DBP', 'Eye Opening', 'GLUCLOSE',
             'Glasgow Coma Scale Score', 'HEMOGLOBIN',
             'PLATELET COUNT', 'POTASSIUM', 'Pulse', 'Respiratory Rate', 'SBP',
