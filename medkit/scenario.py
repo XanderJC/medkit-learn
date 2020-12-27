@@ -6,7 +6,12 @@ from tqdm import tqdm
 import torch
 
 class scenario(gym.Env):
-    def __init__(self,domain,environment,policy):
+    def __init__(self,
+                domain,
+                environment,
+                policy,
+                confounders = None,
+                overlooked  = None):
         '''
         Main object of medkit.
         Takes a domain, environemnt, and policy to build the scene.
@@ -19,7 +24,24 @@ class scenario(gym.Env):
         self.env = environment
         self.pol = policy
 
-    def batch_generate(self,num_trajs=10,max_seq_length=50):
+        self.ol_mask = torch.ones(self.dom.out_dim).float()
+        if overlooked is not None:
+            ol_index = [self.dom.series_names.index(var) for var in overlooked]
+            ol_mask  = np.ones(self.dom.out_dim)
+            ol_mask[ol_index] = 0
+            self.ol_mask = torch.tensor(ol_mask).float()
+        
+        self.hc_index = list(range(self.dom.out_dim))
+        if confounders is not None:
+            not_hidden = [var for var in self.dom.series_names if (var not in confounders)]
+            self.hc_index = [self.dom.series_names.index(var) for var in not_hidden]
+            self.series_names = not_hidden
+
+
+    def batch_generate(self,
+                    num_trajs=10,
+                    max_seq_length=50):
+                    
         static_data = np.zeros((num_trajs,self.dom.static_in_dim))
         series_data = np.zeros((num_trajs,max_seq_length,self.dom.series_in_dim))
         action_data = np.zeros((num_trajs,max_seq_length,1))
@@ -42,6 +64,10 @@ class scenario(gym.Env):
             series_data[i,:seq_length-1,:] = prev_obs[:,:seq_length-1,:]
             action_data[i,:seq_length-1,:] = prev_acts[:,:seq_length-1,:]
 
+        self.ol_mask = torch.ones(self.dom.out_dim).float()
+
+        series_data = series_data[:,:,self.hc_index]
+
         return static_data,series_data,action_data
 
     def step(self,action):
@@ -59,8 +85,14 @@ class scenario(gym.Env):
         prev_obs = torch.cat((prev_obs,observation.reshape(1,1,self.dom.series_in_dim)),1)
         self.history = (prev_obs,prev_acts)
 
-        pred_action = self.pol.select_action(self.history)
+        t = prev_obs.shape[1]
+        ol_prev_obs = prev_obs * self.ol_mask.expand(1,t,self.dom.out_dim)
+        history = (ol_prev_obs,prev_acts)
+
+        pred_action = self.pol.select_action(history)
         info = {'predicted_action':pred_action}
+
+        observation = observation[self.hc_index]
 
         return observation,reward,info,done
 
@@ -74,6 +106,8 @@ class scenario(gym.Env):
 
         pred_action = self.pol.select_action(self.history)
         info = {'predicted_action':pred_action}
+
+        observation = observation[self.hc_index]
 
         return static_obs,observation,info
 
