@@ -24,10 +24,15 @@ def batch_generate(domain       = 'ICU',
                     confounders = None,
                     noise       = None,
                     ignore_var  = None,
+                    seed        = None,
                     **kwargs):
     '''
     Base API function for generating a batch dataset 
     '''
+    
+    if seed is not None:
+        torch.manual_seed(seed)
+        np.random.seed(seed)
 
     dom_dict = {'ICU':ICUDomain,'wards':WardsDomain}
     env_dict = {'RNN':RNNEnv}

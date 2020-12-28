@@ -41,12 +41,12 @@ class scenario(gym.Env):
     def batch_generate(self,
                     num_trajs=10,
                     max_seq_length=50):
-                    
+
         static_data = np.zeros((num_trajs,self.dom.static_in_dim))
         series_data = np.zeros((num_trajs,max_seq_length,self.dom.series_in_dim))
         action_data = np.zeros((num_trajs,max_seq_length,1))
 
-        for i in tqdm(range(num_trajs),desc = 'Generating trajectories'):
+        for i in tqdm(range(num_trajs), desc = 'Generating trajectories'):
 
             static_obs,observation,info = self.reset()
 

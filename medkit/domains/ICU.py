@@ -21,11 +21,15 @@ class ICUDomain(BaseDomain):
         self.y_dim         = 2
 
         RNN_config = {'hidden_dim':128,'lr':1e-2,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
+
         RNN_p_config = {'hidden_dim':128,'lr':1e-4,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
+        MLP_config = {'hidden_dim':128,'lr':1e-2,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
+        Linear_config = {'lr':1e-2,'adam_betas':(0.9,0.99),'epochs':50}
+
         VAE_config = {'latent_size':10,'hidden_units':100,'lr':1e-3,
                 'hidden_layers':3,'adam_betas':(0.9,0.9),'epochs':20}
         self.env_config_dict = {'RNN':RNN_config}
-        self.pol_config_dict = {'RNN':RNN_p_config}
+        self.pol_config_dict = {'RNN':RNN_p_config,'mlp':MLP_config,'linear':Linear_config}
         self.init_config_dict = {'VAE':VAE_config}
 
         self.static_names = ['age', 'weight']
@@ -99,7 +103,7 @@ class icu_dataset(BaseDataset):
         self.y_series = torch.FloatTensor(X_long[:,:,-1])
         '''
 
-        path = resource_filename("data","mimic/mimic.p")
+        path = resource_filename("data","icu/mimic.p")
         with open(path, 'rb') as f:
             MIMIC_data = pickle.load(f)
 
