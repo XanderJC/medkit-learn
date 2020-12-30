@@ -51,11 +51,12 @@ class RNN_env(nn.Module):
         log_l = (cont_log_l * mask.expand((-1,-1,self.con_out_dim))).sum() + \
                 (bin_log_l * mask.expand((-1,-1,self.bin_out_dim))).sum()
 
-        return -log_l / batch_size
+        return -log_l / mask.sum()
 
     def train(self,dataset,batch_size=128):
         data_loader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True,drop_last=True)
         optimizer = torch.optim.Adam(self.parameters(),lr=self.hyper['lr'],betas= self.hyper['adam_betas'])
+
         sample_size = len(dataset)
         privacy_engine = PrivacyEngine(
             self,
@@ -69,14 +70,20 @@ class RNN_env(nn.Module):
         privacy_engine.attach(optimizer)
         total_step = len(data_loader)
         for epoch in range(self.hyper['epochs']):
+            running_loss = 0
+            start = time.time()
             for i,batch in enumerate(data_loader):
                 
                 optimizer.zero_grad()
                 loss = self.loss(batch)
                 loss.backward()
                 optimizer.step()
-        
-                print(loss.item())
+
+                running_loss += loss
+            end = time.time()
+            average_loss = round((running_loss.detach().numpy()/(i+1)),5)
+            print(f'Epoch {epoch+1} average loss: {average_loss} ({round(end-start,2)} seconds)')
+
         return
 
     def save_model(self):
@@ -129,10 +136,6 @@ class RNNEnv(BaseEnv):
         # Initialise LSTM hidden states
         self.hn = torch.zeros(self.model.num_layers, 1, self.model.hidden_size)
         self.cn = torch.zeros(self.model.num_layers, 1, self.model.hidden_size)
-
-        # Generate initial static and series observations - TO-DO swap these for GANs
-        #init_obs = torch.distributions.normal.Normal(loc=0,scale=1).sample((1,1,self.domain.series_in_dim))
-        #static_obs = torch.distributions.normal.Normal(loc=0,scale=1).sample((1,1,self.domain.static_in_dim))
 
         init_obs,static_obs = self.initialiser.sample()
         self.prev_obs = init_obs

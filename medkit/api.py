@@ -5,11 +5,9 @@ from medkit.environments import *
 from medkit.domains import * 
 from medkit.policies import * 
 
-
 import pandas as pd
 import numpy as np
 import torch 
-
 
 
 def batch_generate(domain       = 'ICU',
@@ -42,7 +40,7 @@ def batch_generate(domain       = 'ICU',
 
     if type(domain) is str:
         assert domain in dom_dict, 'Not a valid domain.'
-        dom = dom_dict[domain]()
+        dom = dom_dict[domain](y_dim=actions)
     else:
         assert issubclass(type(domain),BaseDomain)
         dom = domain
@@ -197,7 +195,6 @@ def live_simulate(domain        = 'ICU',
     return scene
 
 if __name__ == '__main__':
-
  
     data = batch_generate(size=100,test_size=10,out='pandas',seed=41310)
     

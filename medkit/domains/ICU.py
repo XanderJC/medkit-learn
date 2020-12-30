@@ -7,7 +7,7 @@ class ICUDomain(BaseDomain):
     purposes, the labels are definitely incorrect. When it comes to actually building domains
     it will take some nice cleaning and selection of variables from our various real data sets.
     '''
-    def __init__(self):
+    def __init__(self,y_dim=2):
         self.name          = 'ICU'
         self.static_in_dim = 2 
         self.series_in_dim = 27
@@ -22,9 +22,9 @@ class ICUDomain(BaseDomain):
 
         RNN_config = {'hidden_dim':128,'lr':1e-2,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
 
-        RNN_p_config = {'hidden_dim':128,'lr':1e-4,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
+        RNN_p_config = {'hidden_dim':128,'lr':1e-2,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
         MLP_config = {'hidden_dim':128,'lr':1e-2,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
-        Linear_config = {'lr':1e-2,'adam_betas':(0.9,0.99),'epochs':50}
+        Linear_config = {'lr':1e-2,'adam_betas':(0.9,0.99),'epochs':500}
 
         VAE_config = {'latent_size':10,'hidden_units':100,'lr':1e-3,
                 'hidden_layers':3,'adam_betas':(0.9,0.9),'epochs':20}
