@@ -15,16 +15,15 @@ class mlp_pol(nn.Module):
         self.domain = domain
         self.hyper = domain.pol_config
 
-    def forward(self,x, t = 1):
+    def forward(self,x):
 
         x = self.in_layer(x)
         for layer in self.linears:
             x = layer(x)
             x = F.elu(x)
         x = self.out_layer(x)
-        pred = F.softmax(x/t,2)
 
-        return pred
+        return x
 
     def loss(self,batch):
         x_static,x_series,mask,y_series = batch
@@ -92,7 +91,7 @@ class MLPPol(BasePol):
     def select_action(self,history,stochastic=False,temperature=1.0):
 
         prev_obs,prev_acts = history
-        pred = self.model.forward(prev_obs,temperature)[:,-1]
+        pred = F.softmax(self.model.forward(prev_obs)[:,-1] /temperature, 1)
 
         if stochastic:
             act = torch.distributions.categorical.Categorical(probs=pred)

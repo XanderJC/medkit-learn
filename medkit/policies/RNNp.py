@@ -13,7 +13,7 @@ class RNN_pol(nn.Module):
         self.domain = domain
         self.hyper = domain.pol_config
     
-    def forward(self, x, t = 1):
+    def forward(self, x):
         # Set initial hidden and cell states 
         h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size)#.to(device) 
         c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size)#.to(device)
@@ -22,7 +22,7 @@ class RNN_pol(nn.Module):
         out, _ = self.lstm(x, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size)
         
         # Decode the hidden state
-        pred = F.softmax(self.fc(out[:, :, :]) / t,2)
+        pred = self.fc(out[:, :, :])
         return pred
 
     def loss(self,batch):
@@ -92,7 +92,8 @@ class RNNPol(BasePol):
     def select_action(self,history,stochastic=False,temperature=1.0):
 
         prev_obs,prev_acts = history
-        pred = self.model.forward(prev_obs,temperature)[:,-1]
+
+        pred = F.softmax(self.model.forward(prev_obs)[:,-1] / temperature, 1)
 
         if stochastic:
             act = torch.distributions.categorical.Categorical(probs=pred)

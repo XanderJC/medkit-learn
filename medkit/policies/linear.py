@@ -10,9 +10,9 @@ class linear_pol(nn.Module):
         self.domain = domain
         self.hyper = domain.pol_config
 
-    def forward(self,x, t = 1):
+    def forward(self,x):
 
-        pred = F.softmax(self.linear(x) / t,2)
+        pred = self.linear(x)
 
         return pred
 
@@ -22,13 +22,20 @@ class linear_pol(nn.Module):
         seq_length = x_series.shape[1]
 
         pred = self.forward(x_series)
+        '''
         pred_flat = pred.reshape((pred.shape[0]*pred.shape[1],pred.shape[2]))
         y_flat = y_series.reshape((pred.shape[0]*pred.shape[1])).long()
         mask_flat = mask.reshape((pred.shape[0]*pred.shape[1]))
         nll = nn.CrossEntropyLoss(reduction='none')
         flat_loss = nll(pred_flat,y_flat)
 
-        return (flat_loss * mask_flat).sum() / mask.sum()
+        return (flat_loss.masked_select(mask_flat.bool())).sum() / mask.sum()
+        '''
+        nll = nn.CrossEntropyLoss(reduction='none')
+        loss = nll(pred.reshape(-1,pred.shape[2]),y_series.unsqueeze(2).reshape(-1).long())
+
+        return loss.masked_select(mask.unsqueeze(2).reshape(-1).bool()).sum() / mask.sum()
+
 
     def train(self,dataset,batch_size=128):
         data_loader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True,drop_last=True)
@@ -82,7 +89,9 @@ class LinearPol(BasePol):
     def select_action(self,history,stochastic=False,temperature=1.0):
 
         prev_obs,prev_acts = history
-        pred = self.model.forward(prev_obs,temperature)[:,-1]
+        forward = self.model.forward(prev_obs)[:,-1] / temperature
+        print(forward.shape)
+        pred = F.softmax(self.model.forward(prev_obs)[:,-1] / temperature, 1)
 
         if stochastic:
             act = torch.distributions.categorical.Categorical(probs=pred)
