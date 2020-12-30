@@ -15,6 +15,7 @@ import torch
 def batch_generate(domain       = 'ICU',
                     environment = 'RNN',
                     policy      = 'RNN',
+                    actions     = 2,
                     size        = 100,
                     valid_size  = None,
                     test_size   = None,
@@ -22,19 +23,20 @@ def batch_generate(domain       = 'ICU',
                     scale       = False,
                     out         = 'numpy',
                     confounders = None,
-                    noise       = None,
-                    ignore_var  = None,
+                    overlooked  = None,
+                    stochastic  = False,
+                    variation   = 1.0,
                     seed        = None,
                     **kwargs):
     '''
     Base API function for generating a batch dataset 
     '''
-    
+
     if seed is not None:
         torch.manual_seed(seed)
         np.random.seed(seed)
 
-    dom_dict = {'ICU':ICUDomain,'wards':WardsDomain}
+    dom_dict = {'ICU':ICUDomain,'wards':WardDomain}
     env_dict = {'RNN':RNNEnv}
     pol_dict = {'RNN':RNNPol}
 
@@ -61,7 +63,15 @@ def batch_generate(domain       = 'ICU',
 
 
     # Build scenario 
-    scene = scenario(dom,env,pol)
+    scene = scenario(
+                domain      = dom,
+                environment = env,
+                policy      = pol,
+                confounders = confounders,
+                overlooked  = overlooked,
+                stochastic  = stochastic,
+                variation   = variation
+    )           
 
     '''
     Produce the appropriate data.
@@ -189,9 +199,9 @@ def live_simulate(domain        = 'ICU',
 if __name__ == '__main__':
 
  
-    data = batch_generate(size=100,test_size=10,out='numpy')
+    data = batch_generate(size=100,test_size=10,out='pandas',seed=41310)
     
-    #data_total = data['training']
+    data_total = data['training'][0]
 
-    #data_total.head()
+    print(data_total.head())
     

@@ -10,9 +10,9 @@ class linear_pol(nn.Module):
         self.domain = domain
         self.hyper = domain.pol_config
 
-    def forward(self,x):
+    def forward(self,x, t = 1):
 
-        pred = F.softmax(self.linear(x),2)
+        pred = F.softmax(self.linear(x) / t,2)
 
         return pred
 
@@ -74,10 +74,10 @@ class LinearPol(BasePol):
             self.load_pretrained()
 
 
-    def select_action(self,history,stochastic=False):
+    def select_action(self,history,stochastic=False,temperature=1.0):
 
         prev_obs,prev_acts = history
-        pred = self.model.forward(prev_obs)[:,-1]
+        pred = self.model.forward(prev_obs,temperature)[:,-1]
 
         if stochastic:
             act = torch.distributions.categorical.Categorical(probs=pred)

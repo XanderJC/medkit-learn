@@ -11,7 +11,9 @@ class scenario(gym.Env):
                 environment,
                 policy,
                 confounders = None,
-                overlooked  = None):
+                overlooked  = None,
+                stochastic  = False,
+                variation   = 1.0):
         '''
         Main object of medkit.
         Takes a domain, environemnt, and policy to build the scene.
@@ -36,6 +38,9 @@ class scenario(gym.Env):
             not_hidden = [var for var in self.dom.series_names if (var not in confounders)]
             self.hc_index = [self.dom.series_names.index(var) for var in not_hidden]
             self.series_names = not_hidden
+
+        self.stochastic = stochastic
+        self.temp       = variation
 
 
     def batch_generate(self,
@@ -89,7 +94,7 @@ class scenario(gym.Env):
         ol_prev_obs = prev_obs * self.ol_mask.expand(1,t,self.dom.out_dim)
         history = (ol_prev_obs,prev_acts)
 
-        pred_action = self.pol.select_action(history)
+        pred_action = self.pol.select_action(history,self.stochastic,self.temp)
         info = {'predicted_action':pred_action}
 
         observation = observation[self.hc_index]
@@ -104,7 +109,7 @@ class scenario(gym.Env):
         static_obs,observation = self.env.reset()
         self.history = (observation.reshape(1,1,self.dom.series_in_dim),None)
 
-        pred_action = self.pol.select_action(self.history)
+        pred_action = self.pol.select_action(self.history,self.stochastic,self.temp)
         info = {'predicted_action':pred_action}
 
         observation = observation[self.hc_index]
