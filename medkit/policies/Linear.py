@@ -89,8 +89,7 @@ class LinearPol(BasePol):
     def select_action(self,history,stochastic=False,temperature=1.0):
 
         prev_obs,prev_acts = history
-        forward = self.model.forward(prev_obs)[:,-1] / temperature
-        print(forward.shape)
+
         pred = F.softmax(self.model.forward(prev_obs)[:,-1] / temperature, 1)
 
         if stochastic:
