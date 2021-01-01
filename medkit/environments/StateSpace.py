@@ -121,24 +121,8 @@ class state_space_model(nn.Module):
         self.hyper = domain.env_config
 
         return
-    '''
-    def transition(self,z_prevs,transitions,alpha):
 
-        t_norm = F.softmax(self.T,dim=1)    
-        t_matrix = t_norm.expand((len(alpha),self.S,self.S,self.y_dim))
-        alpha_e = alpha.reshape((len(alpha),1,1,1)).expand((-1,self.S,self.S,self.y_dim))
 
-        attentive_transition = (t_matrix * alpha_e).sum(axis=0)
-        print(attentive_transition.shape)
-        action_transtion = torch.gather(attentive_transition,dim=2,index=y_series)
-        distribution = torch.matmul(z_prev,action_transtion)
-
-        #sample = F.gumbel_softmax(distribution,tau=0.25)
-        dist = torch.distributions.categorical.Categorical(probs=distribution)
-        sample = F.one_hot(dist.sample(),self.S)
-
-        return sample, distribution
-    '''
     def transition(self,z_prevs,transitions,alpha):
 
         batch_size = transitions.shape[0]
@@ -265,5 +249,71 @@ class state_space_model(nn.Module):
 
 
 class StateSpaceEnv(BaseEnv):
-    def __init__(self):
-        return
+    def __init__(self,load=True):
+        self.name = 'statespace'
+        
+        self.domain = domain
+        self.domain.get_env_config(self.name)
+
+        self.model = state_space_model(domain)
+        if load:
+            self.load_pretrained()
+
+        self.initialiser = VAEInit(domain)
+
+
+    def step(self,action):
+
+        T_mat = self.mode.T[:,:,action.squeeze().long()]
+
+        z_prime_p = torch.matmul(self.z,self.T)
+        dist = torch.distributions.categorical.Categorical(probs=z_prime_p)
+        self.z = F.one_hot(dist.sample().squeeze(),self.model.S).float()
+
+        cont_pars,bin_pars = self.model.emitter(self.z,self.static_obs)
+
+        cont_dist = torch.distributions.normal.Normal(cont_pars[:,:self.domain.con_out_dim],
+                F.softplus(cont_pars[:,self.domain.con_out_dim:]))
+        cont_sample = cont_dist.sample()
+
+        bin_dist = torch.distributions.bernoulli.Bernoulli(bin_pars)
+        bin_sample = bin_dist.sample()
+
+        observation = torch.cat((cont_sample,bin_sample),1)
+        reward = None
+        info = None
+        done = torch.distributions.bernoulli.Bernoulli(0.1).sample().bool()
+
+        self.prev_obs = observation.reshape((1,1,self.domain.series_in_dim))
+
+        return observation.reshape((self.domain.series_in_dim)),reward,info,done
+
+    def reset(self):
+        
+        probs =F.softmax(self.model.z_init_p.unsqueeze(1),0).squeeze()
+        dist = torch.distributions.categorical.Categorical(probs=probs)
+
+        self.z = F.one_hot(dist.sample().squeeze(),self.model.S).float()
+
+        init_obs, static_obs = self.initialiser.sample()
+        self.static_obs = static_obs
+
+        cont_pars,bin_pars = self.model.emitter(self.z,static_obs)
+
+        cont_dist = torch.distributions.normal.Normal(cont_pars[:,:self.domain.con_out_dim],
+                F.softplus(cont_pars[:,self.domain.con_out_dim:]))
+        cont_sample = cont_dist.sample()
+
+        bin_dist = torch.distributions.bernoulli.Bernoulli(bin_pars)
+        bin_sample = bin_dist.sample()
+
+        init_obs = torch.cat((cont_sample,bin_sample),1)
+
+        return static_obs.reshape((self.domain.static_in_dim)),init_obs.reshape((self.domain.series_in_dim))
+
+    def render(self):
+
+        obs = list(self.prev_obs.reshape((self.domain.series_in_dim)))
+
+        for name,value in zip(self.domain.series_names,obs):
+            print(f'{name}: {value}')
