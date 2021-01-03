@@ -1,6 +1,6 @@
 
 
-<img src="figs/logo.png" height="150" width="450">
+<img src="figs/logo.png" height="150" width=auto>
 
 # The Medkit-learn(ing) Environment
 
