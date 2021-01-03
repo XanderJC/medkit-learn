@@ -22,6 +22,10 @@ class BaseEnv(gym.Env):
         self.model.load_state_dict(torch.load(path))
         return
 
+    def save_model(self):
+        path = resource_filename("environments",f"saved_models/{self.domain.name}_{self.name}.pth")
+        torch.save(self.model.state_dict(), path)
+
     def train(self,dataset,batch_size=128):
         '''
         Takes a torch DataLoader(BaseDataset).

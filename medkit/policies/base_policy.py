@@ -18,6 +18,10 @@ class BasePol(ABC):
         path = resource_filename("policies",f"saved_models/{self.domain.name}_{self.name}.pth")
         self.model.load_state_dict(torch.load(path))
         pass
+
+    def save_model(self):
+        path = resource_filename("policies",f"saved_models/{self.domain.name}_{self.name}.pth")
+        torch.save(self.model.state_dict(), path)
     
     def train(self,dataset,batch_size=128):
         self.model.train(dataset,batch_size=batch_size)

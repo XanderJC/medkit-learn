@@ -1,9 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import pickle
 from pkg_resources import resource_filename
-#from medkit.domains.ICU import ICUDomain, icu_dataset
+
 
 class scaler(nn.Module):
     def __init__(self,domain):
