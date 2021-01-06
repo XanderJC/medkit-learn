@@ -10,19 +10,24 @@ class RNN_pol(nn.Module):
         self.input_size = domain.series_in_dim
         self.lstm = opacus.layers.DPLSTM(self.input_size, self.hidden_size, batch_first=True)
         self.fc = nn.Linear(self.hidden_size, domain.y_dim)
+        self.linears = nn.ModuleList([nn.Linear(self.hidden_size, self.hidden_size) \
+                                        for _ in range(self.num_layers)])
         self.domain = domain
         self.hyper = domain.pol_config
     
     def forward(self, x):
         # Set initial hidden and cell states 
-        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size)#.to(device) 
-        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size)#.to(device)
+        h0 = torch.zeros(1, x.size(0), self.hidden_size)#.to(device) 
+        c0 = torch.zeros(1, x.size(0), self.hidden_size)#.to(device)
         
         # Forward propagate LSTM
         out, _ = self.lstm(x, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size)
         
+        for layer in self.linears:
+            out = layer(out)
+            out = F.elu(out)
         # Decode the hidden state
-        pred = self.fc(out[:, :, :])
+        pred = self.fc(out)
         return pred
 
     def loss(self,batch):
@@ -30,13 +35,11 @@ class RNN_pol(nn.Module):
         batch_size = x_series.shape[0]
         seq_length = x_series.shape[1]
 
-        pred = self.forward(x_series)
-        pred_flat = pred.reshape((pred.shape[0]*pred.shape[1],pred.shape[2]))
-        y_flat = y_series.reshape((pred.shape[0]*pred.shape[1])).long()
-        mask_flat = mask.reshape((pred.shape[0]*pred.shape[1]))
-        nll = nn.CrossEntropyLoss(reduction='none')
-        flat_loss = nll(pred_flat,y_flat)
-        return (flat_loss * mask_flat).sum() / mask.sum()
+        pred = F.softmax(self.forward(x_series),2)
+        dist = torch.distributions.categorical.Categorical(probs=pred)
+        ll = dist.log_prob(y_series)
+
+        return -ll.masked_select(mask.bool()).mean()
 
     def train(self,dataset,batch_size=128):
         data_loader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True,drop_last=True)
@@ -52,7 +55,7 @@ class RNN_pol(nn.Module):
             max_grad_norm=1.0,
             secure_rng = True
             )
-        privacy_engine.attach(optimizer)
+        #privacy_engine.attach(optimizer)
         total_step = len(data_loader)
         for epoch in range(self.hyper['epochs']):
             running_loss = 0

@@ -22,19 +22,10 @@ class linear_pol(nn.Module):
         seq_length = x_series.shape[1]
 
         pred = self.forward(x_series)
-        '''
-        pred_flat = pred.reshape((pred.shape[0]*pred.shape[1],pred.shape[2]))
-        y_flat = y_series.reshape((pred.shape[0]*pred.shape[1])).long()
-        mask_flat = mask.reshape((pred.shape[0]*pred.shape[1]))
-        nll = nn.CrossEntropyLoss(reduction='none')
-        flat_loss = nll(pred_flat,y_flat)
+        dist = torch.distributions.categorical.Categorical(probs=pred)
+        ll = dist.log_prob(y_series)
 
-        return (flat_loss.masked_select(mask_flat.bool())).sum() / mask.sum()
-        '''
-        nll = nn.CrossEntropyLoss(reduction='none')
-        loss = nll(pred.reshape(-1,pred.shape[2]),y_series.unsqueeze(2).reshape(-1).long())
-
-        return loss.masked_select(mask.unsqueeze(2).reshape(-1).bool()).sum() / mask.sum()
+        return -ll.masked_select(mask.bool()).mean()
 
 
     def train(self,dataset,batch_size=128):

@@ -35,7 +35,7 @@ def batch_generate(domain       = 'ICU',
         np.random.seed(seed)
 
     dom_dict = {'ICU':ICUDomain,'wards':WardDomain}
-    env_dict = {'RNN':RNNEnv}
+    env_dict = {'RNN':RNNEnv,'SVAE':SVAEEnv}
     pol_dict = {'RNN':RNNPol}
 
     if type(domain) is str:
@@ -142,7 +142,12 @@ def batch_generate(domain       = 'ICU',
                 stacked_series[index:index+length,-1] = actions[i,:length].reshape(length)
                 index += length
             
-            columns = ['id','time'] + scene.dom.series_names + scene.dom.action_names
+            action_name = ''
+            for name in scene.dom.action_names:
+                action_name += f'{name} - '
+            action_name = action_name[:-3]
+
+            columns = ['id','time'] + scene.dom.series_names + [action_name]
 
             series = pd.DataFrame(stacked_series,columns=columns)
 
@@ -196,9 +201,10 @@ def live_simulate(domain        = 'ICU',
 
 if __name__ == '__main__':
  
-    data = batch_generate(size=100,test_size=10,out='pandas',seed=41310)
+    data = batch_generate(domain='wards',environment='SVAE',actions=4,size=100,test_size=10,out='pandas',seed=41310)
     
-    data_total = data['training'][0]
+    data_total = data['training'][1]
 
     print(data_total.head())
+    print(data_total.columns)
     

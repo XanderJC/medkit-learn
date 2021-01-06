@@ -30,14 +30,12 @@ class mlp_pol(nn.Module):
         batch_size = x_series.shape[0]
         seq_length = x_series.shape[1]
 
-        pred = self.forward(x_series)
-        pred_flat = pred.reshape((pred.shape[0]*pred.shape[1],pred.shape[2]))
-        y_flat = y_series.reshape((pred.shape[0]*pred.shape[1])).long()
-        mask_flat = mask.reshape((pred.shape[0]*pred.shape[1]))
-        nll = nn.CrossEntropyLoss(reduction='none')
-        flat_loss = nll(pred_flat,y_flat)
+        pred = F.softmax(self.forward(x_series),2) 
 
-        return (flat_loss * mask_flat).sum() / mask.sum()
+        dist = torch.distributions.categorical.Categorical(probs=pred)
+        ll = dist.log_prob(y_series)
+
+        return -ll.masked_select(mask.bool()).mean()
 
     def train(self,dataset,batch_size=128):
         data_loader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True,drop_last=True)
@@ -53,7 +51,7 @@ class mlp_pol(nn.Module):
             max_grad_norm=1.0,
             secure_rng = True
             )
-        privacy_engine.attach(optimizer)
+        #privacy_engine.attach(optimizer)
         total_step = len(data_loader)
         for epoch in range(self.hyper['epochs']):
             running_loss = 0

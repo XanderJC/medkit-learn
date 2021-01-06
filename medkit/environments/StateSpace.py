@@ -20,10 +20,9 @@ class emitter(nn.Module):
 
         self.base = nn.Sequential(
             nn.Linear(self.in_dim, self.emission_dim),
-            nn.Tanh(),
-            nn.Linear(self.emission_dim, self.emission_dim),
-            nn.Tanh()
         )
+
+        self.middle = nn.Linear(self.emission_dim, self.emission_dim)
 
         self.cont_head = nn.Sequential(
             nn.Linear(self.emission_dim, self.con_out_dim*2)
@@ -40,12 +39,13 @@ class emitter(nn.Module):
 
         joined_in = torch.cat((x_static,z_prev),1)
 
-        latent = self.base(joined_in)
-
+        latent = F.elu(self.base(joined_in))
+        latent = F.elu(self.middle(latent))
         cont_params = self.cont_head(latent)
         bin_params = self.bin_head(latent)
 
         return cont_params,bin_params
+
 
 class inference_net(nn.Module):
     def __init__(self,domain):
@@ -54,7 +54,6 @@ class inference_net(nn.Module):
         self.h_dim = domain.env_config['hidden_dim']
         self.z_to_h = nn.Sequential(
             nn.Linear(self.z_dim, self.h_dim),
-            nn.Tanh()
         )
         self.h_to_p = nn.Linear(self.h_dim, self.z_dim)
 
@@ -76,6 +75,7 @@ class encoder_net(nn.Module):
         self.hidden_size = domain.env_config['encoder_hidden_dim']
         self.lstm = opacus.layers.DPLSTM(self.input_size, self.hidden_size, batch_first=True)
         self.num_layers = 1
+        self.linear = nn.Linear(self.hidden_size, domain.env_config['hidden_dim'])
         return
 
     def forward(self, x, mask):
@@ -90,6 +90,7 @@ class encoder_net(nn.Module):
         # Forward propagate LSTM
         out, _ = self.lstm(x, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size)
         
+        out = self.linear(out)
         # Reverse hidden state again
         re_rev_out = reverse_sequence(out, mask)
         return re_rev_out
@@ -124,9 +125,11 @@ class state_space_model(nn.Module):
 
 
     def transition(self,z_prevs,transitions,alpha):
-
+        
+        
         batch_size = transitions.shape[0]
         distribution = torch.matmul(z_prevs.unsqueeze(2).float(),transitions)
+
         m_order = len(alpha)
         prob = torch.matmul(alpha.reshape(1,1,m_order).expand(batch_size,1,m_order),distribution.squeeze())
 
@@ -140,13 +143,14 @@ class state_space_model(nn.Module):
         cont_pars,bin_pars = emission_params
 
         cont_dist = torch.distributions.normal.Normal(cont_pars[:,:self.con_out_dim],
-                F.softplus(cont_pars[:,self.con_out_dim:]))
+                torch.exp(cont_pars[:,self.con_out_dim:]))
         cont_log_l = cont_dist.log_prob(x_series[:,:self.con_out_dim]).sum(axis=1)
 
         bin_dist = torch.distributions.bernoulli.Bernoulli(bin_pars)
         bin_log_l = bin_dist.log_prob(x_series[:,self.con_out_dim:]).sum(axis=1)
 
-        return -(cont_log_l + bin_log_l)
+        #return -(cont_log_l + bin_log_l)
+        return -bin_log_l
 
     @staticmethod
     def kl_div(p,q):
@@ -182,24 +186,28 @@ class state_space_model(nn.Module):
 
         t_norm = F.softmax(self.T,dim=1)
 
-        action_transition = torch.index_select(t_norm,dim=2,index=y_series.reshape(-1,1).squeeze().to(torch.int64))
+        one_hot_y = F.one_hot(y_series.long(),self.y_dim)
+
+        action_transition = torch.index_select(t_norm,dim=2,index=y_series.reshape(-1,1).squeeze().long())
         action_transition = action_transition.reshape((self.S,self.S,batch_size,-1))
         action_transition = torch.cat((action_transition[:,:,:,:m_order],action_transition),3)
 
         z_prevs = z_prev.unsqueeze(2).expand(batch_size,self.S,m_order)
 
-        for t in range(T_max):
+        for t in range(T_max-1):
+            t += 1
             z_prior, z_prior_p = self.transition(z_prevs.permute(0,2,1),
                                 action_transition[:,:,:,t:t+m_order].permute((2,3,0,1)),alpha)
 
             z_t, z_t_p = self.inf_net(z_prev,future_code[:,t,:])
 
+            
             kl = self.kl_div(z_t_p,z_prior_p)
 
             emission_params = self.emitter(z_t,x_static)
 
-            nll = self.ll_eval(x_series[:,t],emission_params)
-            
+            nll = self.ll_eval(x_series[:,t,:],emission_params)
+
             kl_losses[:,t] = kl
             nll_losses[:,t] = nll
 
@@ -210,9 +218,10 @@ class state_space_model(nn.Module):
 
 
         neg_ll = nll_losses.masked_select(mask.bool()).mean()
+        print(f'nll:{neg_ll}')
         kl_loss = kl_losses.masked_select(mask.bool()).mean()
-
-        return neg_ll + kl_loss
+        print(f'kl: {kl_loss}')
+        return neg_ll #+ kl_loss
     
     def train(self,dataset,batch_size=128):
         data_loader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True,drop_last=True)

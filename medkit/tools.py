@@ -68,11 +68,11 @@ class scaler(nn.Module):
         return x_series
 
     def save_params(self):
-        path = resource_filename("domains",f"scalers/{self.domain.name}_{self.name}.pth")
+        path = resource_filename("domains",f"scalers/{self.domain.base_name}_{self.name}.pth")
         torch.save(self.state_dict(), path)
 
     def load_params(self):
-        path = resource_filename("domains",f"scalers/{self.domain.name}_{self.name}.pth")
+        path = resource_filename("domains",f"scalers/{self.domain.base_name}_{self.name}.pth")
         self.load_state_dict(torch.load(path))
         return
 

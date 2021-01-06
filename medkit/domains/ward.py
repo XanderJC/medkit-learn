@@ -21,11 +21,15 @@ class WardDomain(BaseDomain):
         self.y_dim         = y_dim
 
         RNN_config = {'hidden_dim':128,'lr':1e-2,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
-        RNN_p_config = {'hidden_dim':128,'lr':1e-4,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
+        SVAE_config = {'latent_size':10,'ae_hidden_dim':128,'ae_hidden_layers':1,'t_hidden_dim':128,
+                    'lr':1e-4,'adam_betas':(0.9,0.99),'epochs':50}
+
+        RNN_p_config = {'hidden_dim':64,'lr':5e-4,'hidden_layers':0,'adam_betas':(0.9,0.99),'epochs':50}
+        MLP_config = {'hidden_dim':128,'lr':1e-3,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
         VAE_config = {'latent_size':10,'hidden_units':100,'lr':1e-3,
-                'hidden_layers':3,'adam_betas':(0.9,0.9),'epochs':20}
-        self.env_config_dict = {'RNN':RNN_config}
-        self.pol_config_dict = {'RNN':RNN_p_config}
+                'hidden_layers':3,'adam_betas':(0.9,0.9),'epochs':100}
+        self.env_config_dict = {'RNN':RNN_config,'SVAE':SVAE_config}
+        self.pol_config_dict = {'RNN':RNN_p_config,'mlp':MLP_config}
         self.init_config_dict = {'VAE':VAE_config}
 
         self.static_names = ['age', 'floor: MP2 MPU PR',

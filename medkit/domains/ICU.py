@@ -9,6 +9,7 @@ class ICUDomain(BaseDomain):
     '''
     def __init__(self,y_dim=2):
         self.name          = 'ICU'
+        self.base_name     = 'ICU'
         self.static_in_dim = 2 
         self.series_in_dim = 27
 
@@ -21,8 +22,8 @@ class ICUDomain(BaseDomain):
         self.y_dim         = 2
 
         RNN_config = {'hidden_dim':128,'lr':1e-2,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
-        SS_config = {'state_space_size':10,'encoder_hidden_dim':128,'emitter_hidden_dim':128,'hidden_dim':128,
-                    'lr':1e-3, 'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
+        SS_config = {'state_space_size':6,'encoder_hidden_dim':64,'emitter_hidden_dim':64,'hidden_dim':64,
+                    'lr':1e-3, 'hidden_layers':1,'adam_betas':(0.9,0.99),'epochs':50}
         SVAE_config = {'latent_size':10,'ae_hidden_dim':128,'ae_hidden_layers':1,'t_hidden_dim':128,
                     'lr':1e-3,'adam_betas':(0.9,0.99),'epochs':50}
 

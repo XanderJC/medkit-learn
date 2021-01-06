@@ -218,19 +218,23 @@ class SVAEEnv(BaseEnv):
 
     def step(self,action):
 
-        action = action.reshape((1,1,1))
-        action_one_hot = F.one_hot(action,domain.y_dim)
-        x = torch.cat((self.prev_obs,action),2)
+        action = action.reshape((1,1))
+        action_one_hot = F.one_hot(action,self.domain.y_dim)
+
+        x = torch.cat((self.prev_latent,action_one_hot),2)
 
         out, (self.hn,self.cn) = self.model.lstm(x, (self.hn, self.cn))
 
-        latent_means = out[0][:, -1, :])
-        latent_lstds = out[1][:, -1, :])
+        #latent_means = out[0][:, -1, :]
+        #latent_lstds = out[1][:, -1, :]
+        latent_means = self.model.fc_mean(out)[:, -1, :]
+        latent_lstds = self.model.fc_std(out)[:, -1, :]
 
         latent_dist = torch.distributions.normal.Normal(latent_means,torch.exp(latent_lstds))
         latents = latent_dist.sample()
 
-        mean,lstd,prob = self.model.Decoder(latents)
+        self.prev_latent = latents.unsqueeze(1)
+        mean,lstd,prob = self.model.decoder(latents)
 
         cont_dist = torch.distributions.normal.Normal(mean,torch.exp(lstd))
         cont_sample = cont_dist.sample()
@@ -250,11 +254,16 @@ class SVAEEnv(BaseEnv):
     def reset(self):
 
         # Initialise LSTM hidden states
-        self.hn = torch.zeros(self.model.num_layers, 1, self.model.hidden_size)
-        self.cn = torch.zeros(self.model.num_layers, 1, self.model.hidden_size)
+        self.hn = torch.zeros(1, 1, self.model.t_hidden_size)
+        self.cn = torch.zeros(1, 1, self.model.t_hidden_size)
 
         init_obs,static_obs = self.initialiser.sample()
         self.prev_obs = init_obs
+
+        mean,lstd = self.model.encoder(self.prev_obs)
+
+        latent_dist = torch.distributions.normal.Normal(mean,torch.exp(lstd))
+        self.prev_latent = latent_dist.sample()
 
         return static_obs.reshape((self.domain.static_in_dim)),init_obs.reshape((self.domain.series_in_dim))
 

@@ -76,7 +76,7 @@ class standard_dataset(BaseDataset):
     '''
     Dataset to be passed to a torch DataLoader
     '''
-    def __init__(self,domain,max_seq_length=100):
+    def __init__(self,domain,max_seq_length=100,save_scale=False):
 
 
         scale = scaler(domain)
@@ -133,6 +133,9 @@ class standard_dataset(BaseDataset):
 
         normed_series = scale.fit_series(series,mask)
         normed_static = scale.fit_static(static)
+
+        if save_scale:
+            scale.save_params()
 
         self.X_static = normed_static
         self.X_series = normed_series
