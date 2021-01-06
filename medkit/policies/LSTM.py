@@ -4,7 +4,7 @@ from .base_policy import BasePol
 class RNN_pol(nn.Module):
     def __init__(self, domain):
         super(RNN_pol, self).__init__()
-        self.name = 'RNN'
+        self.name = 'lstm'
         self.hidden_size = domain.pol_config['hidden_dim']
         self.num_layers = domain.pol_config['hidden_layers']
         self.input_size = domain.series_in_dim
@@ -79,10 +79,10 @@ class RNN_pol(nn.Module):
         torch.save(self.state_dict(), path)
 
 
-class RNNPol(BasePol):
+class LSTMPol(BasePol):
     def __init__(self,domain,load=True):
         
-        self.name = 'RNN'
+        self.name = 'lstm'
         
         self.domain = domain
         self.domain.get_pol_config(self.name)

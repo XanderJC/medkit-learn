@@ -11,8 +11,8 @@ import torch
 
 
 def batch_generate(domain       = 'ICU',
-                    environment = 'RNN',
-                    policy      = 'RNN',
+                    environment = 'SVAE',
+                    policy      = 'LSTM',
                     actions     = 2,
                     size        = 100,
                     valid_size  = None,
@@ -34,9 +34,9 @@ def batch_generate(domain       = 'ICU',
         torch.manual_seed(seed)
         np.random.seed(seed)
 
-    dom_dict = {'ICU':ICUDomain,'wards':WardDomain}
-    env_dict = {'RNN':RNNEnv,'SVAE':SVAEEnv}
-    pol_dict = {'RNN':RNNPol}
+    dom_dict = {'ICU':ICUDomain,'Ward':WardDomain,'CF':CFDomain}
+    env_dict = {'TForce':TForceEnv,'SVAE':SVAEEnv,'StateSpace':StateSpaceEnv,'CRN':CRNEnv}
+    pol_dict = {'LSTM':LSTMPol,'Linear':LinearPol,'MLP':MLPPol}
 
     if type(domain) is str:
         assert domain in dom_dict, 'Not a valid domain.'
@@ -201,7 +201,7 @@ def live_simulate(domain        = 'ICU',
 
 if __name__ == '__main__':
  
-    data = batch_generate(domain='wards',environment='SVAE',actions=4,size=100,test_size=10,out='pandas',seed=41310)
+    data = batch_generate(domain='Ward',environment='SVAE',actions=4,size=100,test_size=10,out='pandas',seed=41310)
     
     data_total = data['training'][1]
 

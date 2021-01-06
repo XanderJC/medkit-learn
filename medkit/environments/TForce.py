@@ -5,7 +5,7 @@ from medkit.initialisers.VAE import VAEInit
 class RNN_env(nn.Module):
     def __init__(self, domain):
         super(RNN_env, self).__init__()
-        self.name = 'RNN'
+        self.name = 'tforce'
         self.hidden_size = domain.env_config['hidden_dim']
         self.num_layers = domain.env_config['hidden_layers']
         self.input_size = domain.series_in_dim + 1
@@ -90,10 +90,10 @@ class RNN_env(nn.Module):
         path = resource_filename("environments",f"saved_models/{self.domain.name}_{self.name}.pth")
         torch.save(self.state_dict(), path)
 
-class RNNEnv(BaseEnv):
+class TForceEnv(BaseEnv):
     def __init__(self,domain,load=True):
         
-        self.name = 'RNN'
+        self.name = 'tforce'
         
         self.domain = domain
         self.domain.get_env_config(self.name)

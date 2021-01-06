@@ -76,7 +76,7 @@ class standard_dataset(BaseDataset):
     '''
     Dataset to be passed to a torch DataLoader
     '''
-    def __init__(self,domain,max_seq_length=100,save_scale=False):
+    def __init__(self,domain,max_seq_length=50,save_scale=False):
 
 
         scale = scaler(domain)
@@ -88,6 +88,8 @@ class standard_dataset(BaseDataset):
         series_df = pd.pivot_table(wards, index=['id', 'time'], columns='variable', 
                                     values='value').reset_index(level=[0, 1])
         series_df.fillna(method='ffill',inplace=True)
+        series_df.fillna(0,inplace=True)
+
 
         unique_ids = pd.unique(series_df['id'])
 
@@ -122,6 +124,7 @@ class standard_dataset(BaseDataset):
 
         path = resource_filename("data",path_head)
         static_df = pd.read_csv(path)
+        static_df.fillna(0,inplace=True)
 
         static = torch.zeros((len(unique_ids),domain.static_in_dim))
 

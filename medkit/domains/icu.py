@@ -1,10 +1,10 @@
 from .__head__ import *
 from .base_domain import BaseDomain,BaseDataset
 
-class MIMICDomain(BaseDomain):
+class ICUDomain(BaseDomain):
 
     def __init__(self,y_dim=2):
-        self.base_name      = 'mimic_antibiotics'
+        self.base_name      = 'icu'
         self.name           = self.base_name + f'_{y_dim}'
         self.static_in_dim  = 36
         self.series_in_dim  = 24
@@ -19,12 +19,22 @@ class MIMICDomain(BaseDomain):
         assert y_dim in valid_y
         self.y_dim         = y_dim
 
-        RNN_config = {'hidden_dim':128,'lr':1e-2,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
-        RNN_p_config = {'hidden_dim':128,'lr':1e-4,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
+        TForce_config = {'hidden_dim':128,'lr':1e-2,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
+        SS_config = {'state_space_size':6,'encoder_hidden_dim':64,'emitter_hidden_dim':64,'hidden_dim':64,
+                    'lr':1e-3, 'hidden_layers':1,'adam_betas':(0.9,0.99),'epochs':50}
+        SVAE_config = {'latent_size':10,'ae_hidden_dim':128,'ae_hidden_layers':1,'t_hidden_dim':128,
+                    'lr':1e-3,'adam_betas':(0.9,0.99),'epochs':50}
+        CRN_config = {'hidden_dim': 128, 'lr': 1e-2, 'hidden_layers': 1, 'adam_betas': (0.9, 0.99), 'epochs': 50}
+
+        LSTM_config = {'hidden_dim':128,'lr':1e-2,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
+        MLP_config = {'hidden_dim':128,'lr':1e-2,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
+        Linear_config = {'lr':1e-2,'adam_betas':(0.9,0.99),'epochs':500}
+
         VAE_config = {'latent_size':10,'hidden_units':100,'lr':1e-3,
-                'hidden_layers':3,'adam_betas':(0.9,0.9),'epochs':20}
-        self.env_config_dict = {'RNN':RNN_config}
-        self.pol_config_dict = {'RNN':RNN_p_config}
+                'hidden_layers':3,'adam_betas':(0.9,0.9),'epochs':300}
+
+        self.env_config_dict = {'tforce':TForce_config,'statespace':SS_config,'SVAE':SVAE_config, 'CRN':CRN_config}
+        self.pol_config_dict = {'lstm':LSTM_config,'mlp':MLP_config,'linear':Linear_config}
         self.init_config_dict = {'VAE':VAE_config}
 
         self.static_names = ['height_first', 'height_min', 'height_max', 'weight_first',
