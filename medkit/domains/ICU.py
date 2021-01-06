@@ -26,6 +26,7 @@ class ICUDomain(BaseDomain):
                     'lr':1e-3, 'hidden_layers':1,'adam_betas':(0.9,0.99),'epochs':50}
         SVAE_config = {'latent_size':10,'ae_hidden_dim':128,'ae_hidden_layers':1,'t_hidden_dim':128,
                     'lr':1e-3,'adam_betas':(0.9,0.99),'epochs':50}
+        CRN_config = {'hidden_dim': 128, 'lr': 1e-2, 'hidden_layers': 1, 'adam_betas': (0.9, 0.99), 'epochs': 50}
 
         RNN_p_config = {'hidden_dim':128,'lr':1e-2,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
         MLP_config = {'hidden_dim':128,'lr':1e-2,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
@@ -34,7 +35,7 @@ class ICUDomain(BaseDomain):
         VAE_config = {'latent_size':10,'hidden_units':100,'lr':1e-3,
                 'hidden_layers':3,'adam_betas':(0.9,0.9),'epochs':20}
 
-        self.env_config_dict = {'RNN':RNN_config,'statespace':SS_config,'SVAE':SVAE_config}
+        self.env_config_dict = {'RNN':RNN_config,'statespace':SS_config,'SVAE':SVAE_config, 'CRN':CRN_config}
         self.pol_config_dict = {'RNN':RNN_p_config,'mlp':MLP_config,'linear':Linear_config}
         self.init_config_dict = {'VAE':VAE_config}
 
