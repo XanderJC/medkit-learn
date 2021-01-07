@@ -213,7 +213,7 @@ class SVAEEnv(BaseEnv):
 
         self.initialiser = VAEInit(domain)
 
-        self.terminate = 0.1
+        self.terminate = domain.terminate
 
 
     def step(self,action):

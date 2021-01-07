@@ -4,6 +4,7 @@
 *.csv
 *.csv.gz
 *.Rhistory
+*.npy
 .idea/
 .coverage
 .ipynb_checkpoints
@@ -11,6 +12,7 @@
 */.ipynb_checkpoints/
 .pytest_cache
 test_script.py
+*_test.py
 .DS_Store
 *.egg-info
 *_pg.ipynb

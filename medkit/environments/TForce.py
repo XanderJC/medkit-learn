@@ -8,10 +8,14 @@ class RNN_env(nn.Module):
         self.name = 'tforce'
         self.hidden_size = domain.env_config['hidden_dim']
         self.num_layers = domain.env_config['hidden_layers']
-        self.input_size = domain.series_in_dim + 1
+        self.input_size = domain.series_in_dim + domain.y_dim
+
         self.lstm = opacus.layers.DPLSTM(self.input_size, self.hidden_size, batch_first=True)
         self.fc_bin = nn.Linear(self.hidden_size, domain.bin_out_dim)
         self.fc_cont = nn.Linear(self.hidden_size, 2 * domain.con_out_dim)
+        self.linears = nn.ModuleList([nn.Linear(self.hidden_size, self.hidden_size) \
+                                        for _ in range(self.num_layers)])
+
         self.bin_out_dim = domain.bin_out_dim
         self.con_out_dim = domain.con_out_dim
         self.domain = domain
@@ -19,15 +23,18 @@ class RNN_env(nn.Module):
     
     def forward(self, x):
         # Set initial hidden and cell states 
-        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size)#.to(device) 
-        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size)#.to(device)
+        h0 = torch.zeros(1, x.size(0), self.hidden_size)#.to(device) 
+        c0 = torch.zeros(1, x.size(0), self.hidden_size)#.to(device)
         
         # Forward propagate LSTM
         out, _ = self.lstm(x, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size)
         
-        # Decode the hidden state of the last time step
-        cont_params = self.fc_cont(out[:, :, :])
-        bin_params = torch.sigmoid(self.fc_bin(out[:, :, :]))
+        for layer in self.linears:
+            out = layer(out)
+            out = F.elu(out)
+
+        cont_params = self.fc_cont(out)
+        bin_params = torch.sigmoid(self.fc_bin(out))
         return cont_params,bin_params 
 
     def loss(self,batch):
@@ -35,7 +42,10 @@ class RNN_env(nn.Module):
         batch_size = x_series.shape[0]
         seq_length = x_series.shape[1]
         mask = mask[:,1:].reshape((batch_size,seq_length-1,1))
-        concat = torch.cat((x_series,y_series.reshape((batch_size,seq_length,1))),2)
+
+        y_one_hot = F.one_hot(y_series.long(),self.domain.y_dim)
+
+        concat = torch.cat((x_series,y_one_hot),2)
         inputs = concat[:,:-1,:]
         outputs = x_series[:,1:,:]
 
@@ -67,7 +77,7 @@ class RNN_env(nn.Module):
             max_grad_norm=1.0,
             secure_rng = True
             )
-        privacy_engine.attach(optimizer)
+        #privacy_engine.attach(optimizer)
         total_step = len(data_loader)
         for epoch in range(self.hyper['epochs']):
             running_loss = 0
@@ -107,8 +117,10 @@ class TForceEnv(BaseEnv):
 
     def step(self,action):
 
-        action = action.reshape((1,1,1))
-        x = torch.cat((self.prev_obs,action),2)
+        action = action.reshape((1,1))
+        action_one_hot = F.one_hot(action,self.domain.y_dim)
+
+        x = torch.cat((self.prev_obs,action_one_hot),2)
 
         out, (self.hn,self.cn) = self.model.lstm(x, (self.hn, self.cn))
 
@@ -125,7 +137,7 @@ class TForceEnv(BaseEnv):
         observation = torch.cat((cont_sample,bin_sample),1)
         reward = None
         info = None
-        done = torch.distributions.bernoulli.Bernoulli(0.1).sample().bool()
+        done = torch.distributions.bernoulli.Bernoulli(self.domain.terminate).sample().bool()
 
         self.prev_obs = observation.reshape((1,1,self.domain.series_in_dim))
 
@@ -134,8 +146,8 @@ class TForceEnv(BaseEnv):
     def reset(self):
 
         # Initialise LSTM hidden states
-        self.hn = torch.zeros(self.model.num_layers, 1, self.model.hidden_size)
-        self.cn = torch.zeros(self.model.num_layers, 1, self.model.hidden_size)
+        self.hn = torch.zeros(1, 1, self.model.hidden_size)
+        self.cn = torch.zeros(1, 1, self.model.hidden_size)
 
         init_obs,static_obs = self.initialiser.sample()
         self.prev_obs = init_obs

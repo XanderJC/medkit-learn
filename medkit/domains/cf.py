@@ -15,18 +15,20 @@ class CFDomain(BaseDomain):
         self.bin_out_dim    = 66
         self.con_out_dim    = 10
 
+        self.terminate      = 0.1890
+
         valid_y = [2,4,8]
         assert y_dim in valid_y
         self.y_dim         = y_dim
 
-        TForce_config = {'hidden_dim':128,'lr':1e-2,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
+        TForce_config = {'hidden_dim':128,'lr':1e-3,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
         SS_config = {'state_space_size':6,'encoder_hidden_dim':64,'emitter_hidden_dim':64,'hidden_dim':64,
                     'lr':1e-3, 'hidden_layers':1,'adam_betas':(0.9,0.99),'epochs':50}
         SVAE_config = {'latent_size':10,'ae_hidden_dim':128,'ae_hidden_layers':1,'t_hidden_dim':128,
-                    'lr':1e-3,'adam_betas':(0.9,0.99),'epochs':50}
+                    'lr':1e-4,'adam_betas':(0.9,0.99),'epochs':100}
         CRN_config = {'hidden_dim': 128, 'lr': 1e-2, 'hidden_layers': 1, 'adam_betas': (0.9, 0.99), 'epochs': 50}
 
-        LSTM_config = {'hidden_dim':128,'lr':1e-2,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
+        LSTM_config = {'hidden_dim':64,'lr':1e-3,'hidden_layers':1,'adam_betas':(0.9,0.99),'epochs':200}
         MLP_config = {'hidden_dim':128,'lr':1e-2,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
         Linear_config = {'lr':1e-2,'adam_betas':(0.9,0.99),'epochs':500}
 
@@ -68,5 +70,5 @@ class CFDomain(BaseDomain):
         if y_dim > 2:
             self.action_names += ['Oxygen Therapy']
         if y_dim > 4:
-            self.action_names += ['Dornase Alfa']
+            self.action_names += ['Dornase Alpha']
         return

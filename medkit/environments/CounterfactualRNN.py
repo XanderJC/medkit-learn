@@ -99,7 +99,7 @@ class CRN_env(nn.Module):
             max_grad_norm=1.0,
             secure_rng=True
         )
-        privacy_engine.attach(optimizer)
+        #privacy_engine.attach(optimizer)
         total_step = len(data_loader)
         for epoch in range(self.hyper['epochs']):
             running_loss = 0
