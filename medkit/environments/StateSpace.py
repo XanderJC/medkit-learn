@@ -13,20 +13,18 @@ class emitter(nn.Module):
         self.bin_out_dim = domain.bin_out_dim
         self.con_out_dim = domain.con_out_dim
         self.emission_dim = domain.env_config['emitter_hidden_dim']
+        self.mix_comp = domain.env_config['mix_components']
 
         self.S = domain.env_config['state_space_size']
 
         self.in_dim = self.S + self.static_in_dim
 
-        self.base = nn.Sequential(
-            nn.Linear(self.in_dim, self.emission_dim),
-        )
+        self.base = nn.Linear(self.in_dim, self.emission_dim)
 
         self.middle = nn.Linear(self.emission_dim, self.emission_dim)
 
-        self.cont_head = nn.Sequential(
-            nn.Linear(self.emission_dim, self.con_out_dim*2)
-        )
+        self.cont_mix = nn.Linear(self.emission_dim, self.mix_comp)
+        self.cont_comp = nn.Linear(self.emission_dim, self.con_out_dim*2*self.mix_comp)
 
         self.bin_head = nn.Sequential(
             nn.Linear(self.emission_dim,self.bin_out_dim),
@@ -41,10 +39,11 @@ class emitter(nn.Module):
 
         latent = F.elu(self.base(joined_in))
         latent = F.elu(self.middle(latent))
-        cont_params = self.cont_head(latent)
+        cont_mix = F.softmax(self.cont_mix(latent),1)
+        cont_comp = self.cont_comp(latent)
         bin_params = self.bin_head(latent)
 
-        return cont_params,bin_params
+        return cont_mix,cont_comp.reshape(-1,self.mix_comp,self.con_out_dim*2),bin_params
 
 
 class inference_net(nn.Module):
@@ -111,6 +110,7 @@ class state_space_model(nn.Module):
         self.y_dim = domain.y_dim
 
         self.S = domain.env_config['state_space_size']
+        self.m_order = domain.env_config['markov_order']
 
         self.inf_net = inference_net(domain)
         self.encoder = encoder_net(domain)
@@ -118,6 +118,7 @@ class state_space_model(nn.Module):
 
         self.T = nn.Parameter(torch.randn(self.S,self.S,self.y_dim))
         self.z_init_p = nn.Parameter(torch.ones(self.S))
+        self.alpha = nn.Parameter(torch.ones(self.m_order,1))
 
         self.hyper = domain.env_config
 
@@ -140,17 +141,21 @@ class state_space_model(nn.Module):
 
     def ll_eval(self,x_series,emission_params):
 
-        cont_pars,bin_pars = emission_params
+        cont_mix,cont_comp,bin_pars = emission_params
+        #cont_dist = torch.distributions.normal.Normal(cont_pars[:,:self.con_out_dim],
+        #        torch.exp(cont_pars[:,self.con_out_dim:]))
+        #cont_log_l = cont_dist.log_prob(x_series[:,:self.con_out_dim]).sum(axis=1)
+        mix = torch.distributions.categorical.Categorical(cont_mix)
+        comp = torch.distributions.Independent(torch.distributions.Normal(
+            cont_comp[:,:,self.con_out_dim:], torch.exp(cont_comp[:,:,:self.con_out_dim])), 1)
 
-        cont_dist = torch.distributions.normal.Normal(cont_pars[:,:self.con_out_dim],
-                torch.exp(cont_pars[:,self.con_out_dim:]))
-        cont_log_l = cont_dist.log_prob(x_series[:,:self.con_out_dim]).sum(axis=1)
+        cont_dist = torch.distributions.MixtureSameFamily(mix, comp)
+        cont_log_l = cont_dist.log_prob(x_series[:,:self.con_out_dim])
 
         bin_dist = torch.distributions.bernoulli.Bernoulli(bin_pars)
         bin_log_l = bin_dist.log_prob(x_series[:,self.con_out_dim:]).sum(axis=1)
 
-        #return -(cont_log_l + bin_log_l)
-        return -bin_log_l
+        return -(cont_log_l + bin_log_l)
 
     @staticmethod
     def kl_div(p,q):
@@ -173,16 +178,12 @@ class state_space_model(nn.Module):
 
         z_prev = F.one_hot(dist.sample((batch_size,1)).squeeze(),self.S).float()
 
-        #z_prev = self.z_sample(self.z_init_p)
-        #z_prev = F.gumbel_softmax(self.z_init_p.expand((batch_size,self.S)),tau=0.25)
-
         future_code = self.encoder(x_series, mask)
 
 
-        alpha = torch.ones((2,1))
-        alpha = F.softmax(alpha,dim=0)
+        alpha = F.softmax(self.alpha,dim=0)
 
-        m_order = len(alpha)
+        m_order = self.m_order
 
         t_norm = F.softmax(self.T,dim=1)
 
@@ -218,10 +219,10 @@ class state_space_model(nn.Module):
 
 
         neg_ll = nll_losses.masked_select(mask.bool()).mean()
-        print(f'nll:{neg_ll}')
+        #print(f'nll:{neg_ll}')
         kl_loss = kl_losses.masked_select(mask.bool()).mean()
-        print(f'kl: {kl_loss}')
-        return neg_ll #+ kl_loss
+        #print(f'kl: {kl_loss}')
+        return neg_ll + kl_loss
     
     def train(self,dataset,batch_size=128):
         data_loader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True,drop_last=True)
@@ -258,7 +259,7 @@ class state_space_model(nn.Module):
 
 
 class StateSpaceEnv(BaseEnv):
-    def __init__(self,load=True):
+    def __init__(self,domain,load=True):
         self.name = 'statespace'
         
         self.domain = domain
@@ -270,19 +271,47 @@ class StateSpaceEnv(BaseEnv):
 
         self.initialiser = VAEInit(domain)
 
+        self.m_order = self.model.m_order
+        self.S = self.model.S
+
 
     def step(self,action):
 
-        T_mat = self.mode.T[:,:,action.squeeze().long()]
+        t_norm = F.softmax(self.model.T,dim=1)
 
-        z_prime_p = torch.matmul(self.z,self.T)
+        if self.t == 0:
+            self.y_prevs = action.expand(self.m_order,1)
+        else:
+            new_y_prevs = torch.zeros(self.y_prevs.shape)
+            new_y_prevs[:-1] = self.y_prevs[1:]
+            new_y_prevs[-1] = action
+            self.y_prevs = new_y_prevs
+
+        self.t += 1
+
+        a_t = torch.index_select(t_norm,dim=2,index=self.y_prevs.squeeze().long())
+
+        alpha = F.softmax(self.model.alpha,dim=0).detach()
+
+        T_mat = (a_t * alpha.squeeze()).sum(axis=2)
+
+
+        z_prime_p = torch.matmul(self.z,T_mat)
         dist = torch.distributions.categorical.Categorical(probs=z_prime_p)
-        self.z = F.one_hot(dist.sample().squeeze(),self.model.S).float()
+        self.z = F.one_hot(dist.sample().squeeze(),self.model.S).float().unsqueeze(0)
 
-        cont_pars,bin_pars = self.model.emitter(self.z,self.static_obs)
+        new_z_prevs = torch.zeros(self.z_prevs.shape)
+        new_z_prevs[:,:,:-1] = self.z_prevs[:,:,1:]
+        new_z_prevs[:,:,-1] = self.z
+        self.z_prevs = new_z_prevs
 
-        cont_dist = torch.distributions.normal.Normal(cont_pars[:,:self.domain.con_out_dim],
-                F.softplus(cont_pars[:,self.domain.con_out_dim:]))
+        cont_mix,cont_comp,bin_pars = self.model.emitter(self.z,self.static_obs)
+
+        mix = torch.distributions.categorical.Categorical(cont_mix)
+        comp = torch.distributions.Independent(torch.distributions.Normal(
+            cont_comp[:,:,self.model.con_out_dim:], torch.exp(cont_comp[:,:,:self.model.con_out_dim])), 1)
+
+        cont_dist = torch.distributions.MixtureSameFamily(mix, comp)
         cont_sample = cont_dist.sample()
 
         bin_dist = torch.distributions.bernoulli.Bernoulli(bin_pars)
@@ -291,7 +320,7 @@ class StateSpaceEnv(BaseEnv):
         observation = torch.cat((cont_sample,bin_sample),1)
         reward = None
         info = None
-        done = torch.distributions.bernoulli.Bernoulli(0.1).sample().bool()
+        done = torch.distributions.bernoulli.Bernoulli(self.domain.terminate).sample().bool()
 
         self.prev_obs = observation.reshape((1,1,self.domain.series_in_dim))
 
@@ -302,21 +331,29 @@ class StateSpaceEnv(BaseEnv):
         probs =F.softmax(self.model.z_init_p.unsqueeze(1),0).squeeze()
         dist = torch.distributions.categorical.Categorical(probs=probs)
 
-        self.z = F.one_hot(dist.sample().squeeze(),self.model.S).float()
+        self.z = F.one_hot(dist.sample().squeeze(),self.model.S).float().unsqueeze(0)
 
         init_obs, static_obs = self.initialiser.sample()
         self.static_obs = static_obs
 
-        cont_pars,bin_pars = self.model.emitter(self.z,static_obs)
+        cont_mix,cont_comp,bin_pars = self.model.emitter(self.z,static_obs)
 
-        cont_dist = torch.distributions.normal.Normal(cont_pars[:,:self.domain.con_out_dim],
-                F.softplus(cont_pars[:,self.domain.con_out_dim:]))
+        mix = torch.distributions.categorical.Categorical(cont_mix)
+        comp = torch.distributions.Independent(torch.distributions.Normal(
+            cont_comp[:,:,self.model.con_out_dim:], torch.exp(cont_comp[:,:,:self.model.con_out_dim])), 1)
+
+        cont_dist = torch.distributions.MixtureSameFamily(mix, comp)
         cont_sample = cont_dist.sample()
 
         bin_dist = torch.distributions.bernoulli.Bernoulli(bin_pars)
         bin_sample = bin_dist.sample()
 
         init_obs = torch.cat((cont_sample,bin_sample),1)
+
+        self.z_prevs = self.z.unsqueeze(2).expand(1,self.S,self.m_order).detach()
+        self.y_prevs = torch.zeros(self.m_order).detach()
+        self.t = 0
+
 
         return static_obs.reshape((self.domain.static_in_dim)),init_obs.reshape((self.domain.series_in_dim))
 

@@ -23,7 +23,8 @@ class CFDomain(BaseDomain):
 
         TForce_config = {'hidden_dim':128,'lr':1e-3,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
         SS_config = {'state_space_size':6,'encoder_hidden_dim':64,'emitter_hidden_dim':64,'hidden_dim':64,
-                    'lr':1e-3, 'hidden_layers':1,'adam_betas':(0.9,0.99),'epochs':50}
+                    'mix_components':3,'markov_order':3,'lr':1e-3, 'hidden_layers':1,'adam_betas':(0.9,0.99),
+                    'epochs':50}
         SVAE_config = {'latent_size':10,'ae_hidden_dim':128,'ae_hidden_layers':1,'t_hidden_dim':128,
                     'lr':1e-4,'adam_betas':(0.9,0.99),'epochs':100}
         CRN_config = {'hidden_dim': 128, 'lr': 1e-2, 'hidden_layers': 1, 'adam_betas': (0.9, 0.99), 'epochs': 50}
