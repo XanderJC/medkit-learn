@@ -13,6 +13,8 @@
 .pytest_cache
 test_script.py
 *_test.py
+*_exp.py
+*_exp.pdf
 .DS_Store
 *.egg-info
 *_pg.ipynb

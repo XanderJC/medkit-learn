@@ -201,64 +201,10 @@ def live_simulate(domain        = 'ICU',
 
 if __name__ == '__main__':
 
-    domain = ICUDomain()
-    real_data = standard_dataset(domain)
-    dataX_hat = (real_data.X_series.detach().numpy())
 
-    Sample_No = len(real_data)
-
-    data = batch_generate(domain='ICU',environment='TForce',actions=2,size=Sample_No,scale=True,test_size=10,seed=41310)
+    data = batch_generate(domain='Ward',environment='TForce',actions=2,max_length=30,
+                            size=100,scale=True,seed=41310)
     
-    series = data['training'][1]
-
-    mask = series[:,:,0]!=0
-
-    from sklearn.manifold import TSNE
-    '''
-    stacked = series.reshape(series.shape[0]*series.shape[1],series.shape[2])
-    stacked = stacked[stacked[:,0]!=0]
-    X_embedded = TSNE(n_components=2).fit_transform(stacked)
-    print(X_embedded.shape)
-    '''
-
-
-    dataX = series
-
-  
-    # Preprocess
-    for i in range(Sample_No):
-        if (i == 0):
-            arrayX = np.reshape(np.mean(np.asarray(dataX[0]),1), [1,len(dataX[0][:,0])])
-            arrayX_hat = np.reshape(np.mean(np.asarray(dataX_hat[0]),1), [1,len(dataX[0][:,0])])
-        else:
-            arrayX = np.concatenate((arrayX, np.reshape(np.mean(np.asarray(dataX[i]),1), [1,len(dataX[0][:,0])])))
-            arrayX_hat = np.concatenate((arrayX_hat, np.reshape(np.mean(np.asarray(dataX_hat[i]),1), [1,len(dataX[0][:,0])])))
-     
-    # Do t-SNE Analysis together       
-    final_arrayX = np.concatenate((arrayX, arrayX_hat), axis = 0)
     
-    # Parameters
-    No = len(arrayX[:,0])
-    colors = ["red" for i in range(No)] +  ["blue" for i in range(No)]    
-    
-    # TSNE anlaysis
-    tsne = TSNE(n_components = 2, verbose = 1, perplexity = 40, n_iter = 300)
-    tsne_results = tsne.fit_transform(final_arrayX)
-
-    import matplotlib.pyplot as plt
-
-    f, ax = plt.subplots(1)
-    
-    plt.scatter(tsne_results[:No,0], tsne_results[:No,1], c = colors[:No], alpha = 0.2, label = "Original")
-    plt.scatter(tsne_results[No:,0], tsne_results[No:,1], c = colors[No:], alpha = 0.2, label = "Synthetic")
-
-    ax.legend()
-    
-    plt.title('t-SNE plot')
-    plt.xlabel('x-tsne')
-    plt.ylabel('y_tsne')
-    plt.show()
-    #plt.scatter(X_embedded[:,0],X_embedded[:,1])
-    #plt.show()
 
     

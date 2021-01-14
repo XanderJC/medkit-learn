@@ -8,7 +8,7 @@ from medkit.scenario import scenario
 domain = WardDomain(y_dim=2)
 
 # Would normally load a pretrained model, set load=False so it doesn't
-test_env = StateSpaceEnv(domain,load=False)
+test_env = CRNEnv(domain,load=False)
 test_pol = LSTMPol(domain,load=False)
 test_init = VAEInit(domain,load=False)
 
@@ -19,7 +19,11 @@ data = standard_dataset(domain)
 test_env.train(data,batch_size=64)
 
 # Save model by uncommenting
+test_env.model.save_model()
+
+#test_pol.train(data,batch_size=64)
 #test_pol.model.save_model()
+
 
 #test_init.train(data,batch_size=64)
 #test_init.model.save_model()

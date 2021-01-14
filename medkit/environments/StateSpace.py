@@ -121,6 +121,7 @@ class state_space_model(nn.Module):
         self.alpha = nn.Parameter(torch.ones(self.m_order,1))
 
         self.hyper = domain.env_config
+        self.domain = domain
 
         return
 
@@ -249,13 +250,17 @@ class state_space_model(nn.Module):
                 loss = self.loss(batch)
                 loss.backward()
                 optimizer.step()
-                print(loss)
+                #print(loss)
                 running_loss += loss
             end = time.time()
             average_loss = round((running_loss.detach().numpy()/(i+1)),5)
             print(f'Epoch {epoch+1} average loss: {average_loss} ({round(end-start,2)} seconds)')
 
         return
+    
+    def save_model(self):
+        path = resource_filename("environments", f"saved_models/{self.domain.name}_{self.name}.pth")
+        torch.save(self.state_dict(), path)
 
 
 class StateSpaceEnv(BaseEnv):
