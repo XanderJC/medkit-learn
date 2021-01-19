@@ -1,6 +1,6 @@
 from .__head__ import *
 import opacus
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_auc_score,accuracy_score
 
 class discriminator(nn.Module):
     def __init__(self,input_size):
@@ -186,7 +186,7 @@ class predictor(nn.Module):
         self.fc = nn.Linear(self.hidden_size, target_size)
         self.linears = nn.ModuleList([nn.Linear(self.hidden_size, self.hidden_size) \
                                         for _ in range(self.num_layers)])
-        self.hyper = {'lr':1e-3,'adam_betas':(0.9,0.99),'epochs':50}
+        self.hyper = {'lr':1e-3,'adam_betas':(0.9,0.99),'epochs':100}
     
     def forward(self, x):
         # Set initial hidden and cell states 
@@ -201,14 +201,14 @@ class predictor(nn.Module):
             out = F.elu(out)
         # Decode the hidden state
         pred = self.fc(out)
-        return pred
+        return F.softmax(pred,2)
 
     def loss(self,batch):
         x_series,mask,y_series = batch
         batch_size = x_series.shape[0]
         seq_length = x_series.shape[1]
 
-        pred = F.softmax(self.forward(x_series),2)
+        pred = self.forward(x_series)
         dist = torch.distributions.categorical.Categorical(probs=pred)
         ll = dist.log_prob(y_series)
 
@@ -249,12 +249,24 @@ def predictive_score(s_x,s_y,r_x,r_y,r_mask,y_dim):
     pred_model.train(train_data,batch_size=train_data.N)
 
     r_preds = pred_model.forward(r_x)
+    num_test,_,_ = r_x.shape
 
-
-    r_preds = r_preds[:,:,1].masked_select(r_mask.bool()).detach().numpy()
+    '''
+    r_preds = r_preds.masked_select(r_mask.bool()).detach().numpy()
+    print(r_preds.shape)
     r_y = r_y.masked_select(r_mask.bool()).detach().numpy()
+    print(r_y.shape)
+    print(r_preds)
+    '''
 
-    auc = roc_auc_score(r_y,r_preds)
+    r_preds = r_preds.detach().numpy().reshape(num_test*seq_len,y_dim)
+    r_y = r_y.detach().numpy().reshape(num_test*seq_len)
+    r_mask = r_mask.bool().detach().numpy().reshape(num_test*seq_len)
+
+    if y_dim ==2:
+        r_preds = r_preds[:,1]
+    auc = roc_auc_score(r_y[r_mask],r_preds[r_mask], multi_class='ovr')
+
 
     return auc
 
@@ -268,9 +280,9 @@ def discriminative_score(s_data,r_data):
 
     train_data = DiscDataset(s_data[:split],r_data[:split])
 
-    optimizer = torch.optim.Adam(disc_model.parameters(),lr=1e-4,betas=(0.9,0.99))
+    optimizer = torch.optim.Adam(disc_model.parameters(),lr=1e-3,betas=(0.9,0.99))
 
-    for i in range(1000):
+    for i in range(50):
         optimizer.zero_grad()
 
         synt_pred = disc_model.forward(s_data[:split])

@@ -12,8 +12,8 @@ class WardDomain(BaseDomain):
         self.static_bin_dim = 48
         self.static_con_dim = 1
         self.out_dim        = 35
-        self.bin_out_dim    = 16
-        self.con_out_dim    = 19
+        self.bin_out_dim    = 15
+        self.con_out_dim    = 20
 
         self.terminate      = 0.0291
 
@@ -22,21 +22,21 @@ class WardDomain(BaseDomain):
 
         self.y_dim         = y_dim
 
-        TForce_config = {'hidden_dim':128,'lr':1e-3,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
+        TForce_config = {'hidden_dim':128,'lr':1e-3,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':100}
         SS_config = {'state_space_size':10,'encoder_hidden_dim':64,'emitter_hidden_dim':64,'hidden_dim':64,
-                    'mix_components':3,'markov_order':5,'lr':1e-4, 'hidden_layers':1,'adam_betas':(0.9,0.99),
-                    'epochs':50}
+                    'mix_components':5,'markov_order':5,'lr':1e-4, 'hidden_layers':1,'adam_betas':(0.9,0.99),
+                    'epochs':100}
         SVAE_config = {'latent_size':10,'ae_hidden_dim':128,'ae_hidden_layers':1,'t_hidden_dim':128,
                     'lr':1e-4,'adam_betas':(0.9,0.99),'epochs':50}
-        CRN_config = {'hidden_dim': 128, 'lr': 1e-3, 'hidden_layers': 3, 'adam_betas': (0.9, 0.99), 'epochs': 50}
+        CRN_config = {'hidden_dim': 128, 'lr': 1e-3, 'hidden_layers': 3, 'adam_betas': (0.9, 0.99), 'epochs': 100}
 
 
-        LSTM_config = {'hidden_dim':64,'lr':1e-3,'hidden_layers':1,'adam_betas':(0.9,0.99),'epochs':20}
-        MLP_config = {'hidden_dim':128,'lr':1e-3,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
-        Linear_config = {'lr':1e-2,'adam_betas':(0.9,0.99),'epochs':500}
+        LSTM_config = {'hidden_dim':64,'lr':1e-3,'hidden_layers':1,'adam_betas':(0.9,0.99),'epochs':100}
+        MLP_config = {'hidden_dim':128,'lr':1e-3,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':100}
+        Linear_config = {'lr':1e-3,'adam_betas':(0.9,0.99),'epochs':100}
 
         VAE_config = {'latent_size':10,'hidden_units':100,'lr':1e-3,
-                'hidden_layers':3,'adam_betas':(0.9,0.9),'epochs':100}
+                'hidden_layers':3,'adam_betas':(0.9,0.9),'epochs':500}
 
         self.env_config_dict = {'tforce':TForce_config,'statespace':SS_config,'SVAE':SVAE_config, 'CRN':CRN_config}
         self.pol_config_dict = {'lstm':LSTM_config,'mlp':MLP_config,'linear':Linear_config}
@@ -63,6 +63,7 @@ class WardDomain(BaseDomain):
             'cpt: Allogeneic stem cell transplantation',
             'cpt: Autologous stem cell transplantation', 'cpt: Chemo', 'cpt: NA',
             'icu_admission']
+
         self.series_names = ['Best Motor Response', 'Best Verbal Response', 'CHLORIDE',
             'CREATINEINE', 'DBP', 'Eye Opening', 'GLUCLOSE',
             'Glasgow Coma Scale Score', 'HEMOGLOBIN',
@@ -70,17 +71,17 @@ class WardDomain(BaseDomain):
             'SODIUM', 'SpO2', 'TOTAL CO2', 'Temperature', 'UREA NITROGEN',
             'WHITE BLOOD CELL COUNT','O2 Device: Aerosol mask', 'O2 Device: Blow-by',
             'O2 Device: Continuous Inhaled Medication', 'O2 Device: Face tent',
-            'O2 Device: Heliox', 'O2 Device: High flow nasal cannula',
-            'O2 Device: Nasal cannula', 'O2 Device: Non-rebreather mask',
+            'O2 Device: Heliox', 'O2 Device: CPAP',
+            'O2 Device: Trach Collar', 'O2 Device: Non-rebreather mask',
             'O2 Device: None (Room air)', 'O2 Device: Other (Comment)',
             'O2 Device: Partial rebreather mask',
-            'O2 Device: Trach', 'O2 Device: Trach Collar',
+            'O2 Device: Trach', 'O2 Device: Bi-PAP',
             'O2 Device: Transtracheal catheter', 'O2 Device: Venturi mask']
-        self.action_names = ['O2 Device: Bi-PAP']
+        self.action_names = ['O2 Device: Nasal cannula']
         if y_dim > 2:
-            self.action_names += ['O2 Device: CPAP']
-        if y_dim > 4:
             self.action_names += ['O2 Device: Simple mask']
+        if y_dim > 4:
+            self.action_names += ['O2 Device: High flow nasal cannula']
         return
 
 

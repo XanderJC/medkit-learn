@@ -21,29 +21,23 @@ class linear_pol(nn.Module):
         batch_size = x_series.shape[0]
         seq_length = x_series.shape[1]
 
-        pred = self.forward(x_series)
+        pred = F.softmax(self.forward(x_series),2)
         dist = torch.distributions.categorical.Categorical(probs=pred)
         ll = dist.log_prob(y_series)
 
         return -ll.masked_select(mask.bool()).mean()
 
 
-    def train(self,dataset,batch_size=128):
+    def train(self,dataset,batch_size=128,private=False):
         data_loader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True,drop_last=True)
         optimizer = torch.optim.Adam(self.parameters(),lr=self.hyper['lr'],betas= self.hyper['adam_betas'])
 
         sample_size = len(dataset)
-        privacy_engine = PrivacyEngine(
-            self,
-            batch_size,
-            sample_size,
-            alphas=[10, 100],
-            noise_multiplier=0.1,
-            max_grad_norm=1.0,
-            secure_rng = True
-            )
-        privacy_engine.attach(optimizer)
-        total_step = len(data_loader)
+        privacy_engine = PrivacyEngine(self,batch_size, sample_size, alphas=[10, 100], noise_multiplier=0.1,
+                                        max_grad_norm=1.0, secure_rng = True)
+        if private:
+            privacy_engine.attach(optimizer)
+
         for epoch in range(self.hyper['epochs']):
             running_loss = 0
             start = time.time()
@@ -58,6 +52,8 @@ class linear_pol(nn.Module):
             end = time.time()
             average_loss = round((running_loss.detach().numpy()/(i+1)),5)
             print(f'Epoch {epoch+1} average loss: {average_loss} ({round(end-start,2)} seconds)')
+
+        return
 
     def save_model(self):
         path = resource_filename("policies",f"saved_models/{self.domain.name}_{self.name}.pth")

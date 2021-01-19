@@ -6,9 +6,44 @@ import torch
 from medkit.scenario import scenario
 
 domain = WardDomain(y_dim=2)
+data = standard_dataset(domain)
+
+#test_init = VAEInit(domain,load=False)
+#test_init.train(data,batch_size=64)
+#test_init.model.save_model()
+
+
+env_dict = {'TForce':TForceEnv,'SVAE':SVAEEnv,'StateSpace':StateSpaceEnv,'CRN':CRNEnv}
+for env in ['SVAE']:
+    for y_dim in [2,4,8]:
+
+        domain = WardDomain(y_dim=y_dim)
+        test_env = env_dict[env](domain,load=False)
+
+        data = standard_dataset(domain)
+        print(f'{env}: {y_dim}')
+        test_env.train(data,batch_size=64)
+        test_env.model.save_model()
+
+'''
+pol_dict = {'LSTM':LSTMPol,'Linear':LinearPol,'MLP':MLPPol}
+for pol in ['LSTM','MLP','Linear']:
+    for y_dim in [2,4,8]:
+
+        domain = WardDomain(y_dim=y_dim)
+        test_pol = pol_dict[pol](domain,load=False)
+
+        data = standard_dataset(domain)
+        print(f'{pol}: {y_dim}')
+        test_pol.train(data,batch_size=64)
+        test_pol.model.save_model()
+'''
+
+'''
+domain = WardDomain(y_dim=8)
 
 # Would normally load a pretrained model, set load=False so it doesn't
-test_env = CRNEnv(domain,load=False)
+test_env = StateSpaceEnv(domain,load=False)
 test_pol = LSTMPol(domain,load=False)
 test_init = VAEInit(domain,load=False)
 
@@ -27,3 +62,4 @@ test_env.model.save_model()
 
 #test_init.train(data,batch_size=64)
 #test_init.model.save_model()
+'''
