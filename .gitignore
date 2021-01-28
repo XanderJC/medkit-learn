@@ -2,6 +2,7 @@
 *.xml
 *.iml
 *.csv
+*.pkl
 *.csv.gz
 *.Rhistory
 *.npy
