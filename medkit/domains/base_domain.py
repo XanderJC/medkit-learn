@@ -124,7 +124,7 @@ class standard_dataset(BaseDataset):
 
         path = resource_filename("data",path_head)
         static_df = pd.read_csv(path)
-        static_df.fillna(0,inplace=True)
+        static_df.fillna(static_df.mean(),inplace=True)
 
         static = torch.zeros((len(unique_ids),domain.static_in_dim))
 

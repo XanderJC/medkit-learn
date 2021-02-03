@@ -21,20 +21,21 @@ class ICUDomain(BaseDomain):
         assert y_dim in valid_y
         self.y_dim         = y_dim
 
-        TForce_config = {'hidden_dim':128,'lr':1e-3,'hidden_layers':1,'adam_betas':(0.9,0.99),'epochs':100}
-        SS_config = {'state_space_size':6,'encoder_hidden_dim':64,'emitter_hidden_dim':64,'hidden_dim':64,
-                    'mix_components':3,'markov_order':3,'lr':1e-3, 'hidden_layers':1,'adam_betas':(0.9,0.99),
-                    'epochs':50}
+        TForce_config = {'hidden_dim':128,'lr':1e-3,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':100}
+        SS_config = {'state_space_size':10,'encoder_hidden_dim':64,'emitter_hidden_dim':64,'hidden_dim':64,
+                    'mix_components':5,'markov_order':5,'lr':1e-3, 'hidden_layers':1,'adam_betas':(0.9,0.99),
+                    'epochs':100}
         SVAE_config = {'latent_size':10,'ae_hidden_dim':128,'ae_hidden_layers':1,'t_hidden_dim':128,
-                    'lr':1e-3,'adam_betas':(0.9,0.99),'epochs':50}
-        CRN_config = {'hidden_dim': 128, 'lr': 1e-2, 'hidden_layers': 1, 'adam_betas': (0.9, 0.99), 'epochs': 50}
+                    'lr':1e-4,'adam_betas':(0.9,0.99),'epochs':50}
+        CRN_config = {'hidden_dim': 128, 'lr': 1e-3, 'hidden_layers': 3, 'adam_betas': (0.9, 0.99), 'epochs': 100}
 
-        LSTM_config = {'hidden_dim':64,'lr':1e-3,'hidden_layers':1,'adam_betas':(0.9,0.99),'epochs':250}
-        MLP_config = {'hidden_dim':128,'lr':1e-2,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':50}
-        Linear_config = {'lr':1e-2,'adam_betas':(0.9,0.99),'epochs':500}
+
+        LSTM_config = {'hidden_dim':64,'lr':1e-3,'hidden_layers':1,'adam_betas':(0.9,0.99),'epochs':100}
+        MLP_config = {'hidden_dim':128,'lr':1e-3,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':100}
+        Linear_config = {'lr':1e-3,'adam_betas':(0.9,0.99),'epochs':100}
 
         VAE_config = {'latent_size':10,'hidden_units':100,'lr':1e-3,
-                'hidden_layers':3,'adam_betas':(0.9,0.9),'epochs':300}
+                'hidden_layers':3,'adam_betas':(0.9,0.9),'epochs':500}
 
         self.env_config_dict = {'tforce':TForce_config,'statespace':SS_config,'SVAE':SVAE_config, 'CRN':CRN_config}
         self.pol_config_dict = {'lstm':LSTM_config,'mlp':MLP_config,'linear':Linear_config}

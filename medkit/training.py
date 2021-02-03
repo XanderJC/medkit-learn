@@ -5,19 +5,21 @@ from medkit.initialisers import VAEInit
 import torch
 from medkit.scenario import scenario
 
-domain = WardDomain(y_dim=2)
-data = standard_dataset(domain)
+'''
+domain = ICUDomain(y_dim=2)
+data = standard_dataset(domain,save_scale=True)
 
-#test_init = VAEInit(domain,load=False)
-#test_init.train(data,batch_size=64)
-#test_init.model.save_model()
+test_init = VAEInit(domain,load=False)
+test_init.train(data,batch_size=64)
+test_init.model.save_model()
+'''
 
 
 env_dict = {'TForce':TForceEnv,'SVAE':SVAEEnv,'StateSpace':StateSpaceEnv,'CRN':CRNEnv}
-for env in ['SVAE']:
+for env in ['StateSpace']:
     for y_dim in [2,4,8]:
 
-        domain = WardDomain(y_dim=y_dim)
+        domain = ICUDomain(y_dim=y_dim)
         test_env = env_dict[env](domain,load=False)
 
         data = standard_dataset(domain)
@@ -30,7 +32,7 @@ pol_dict = {'LSTM':LSTMPol,'Linear':LinearPol,'MLP':MLPPol}
 for pol in ['LSTM','MLP','Linear']:
     for y_dim in [2,4,8]:
 
-        domain = WardDomain(y_dim=y_dim)
+        domain = ICUDomain(y_dim=y_dim)
         test_pol = pol_dict[pol](domain,load=False)
 
         data = standard_dataset(domain)
