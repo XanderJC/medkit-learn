@@ -14,9 +14,9 @@ test_init.train(data,batch_size=64)
 test_init.model.save_model()
 '''
 
-
+'''
 env_dict = {'TForce':TForceEnv,'SVAE':SVAEEnv,'StateSpace':StateSpaceEnv,'CRN':CRNEnv}
-for env in ['StateSpace']:
+for env in ['TForce']:
     for y_dim in [2,4,8]:
 
         domain = ICUDomain(y_dim=y_dim)
@@ -25,12 +25,12 @@ for env in ['StateSpace']:
         data = standard_dataset(domain)
         print(f'{env}: {y_dim}')
         test_env.train(data,batch_size=64)
-        test_env.model.save_model()
-
+        #test_env.model.save_model()
 '''
+
 pol_dict = {'LSTM':LSTMPol,'Linear':LinearPol,'MLP':MLPPol}
-for pol in ['LSTM','MLP','Linear']:
-    for y_dim in [2,4,8]:
+for pol in ['LSTM']:
+    for y_dim in [4,8]:
 
         domain = ICUDomain(y_dim=y_dim)
         test_pol = pol_dict[pol](domain,load=False)
@@ -39,7 +39,7 @@ for pol in ['LSTM','MLP','Linear']:
         print(f'{pol}: {y_dim}')
         test_pol.train(data,batch_size=64)
         test_pol.model.save_model()
-'''
+
 
 '''
 domain = WardDomain(y_dim=8)

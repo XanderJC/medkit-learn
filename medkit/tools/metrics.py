@@ -186,7 +186,7 @@ class predictor(nn.Module):
         self.fc = nn.Linear(self.hidden_size, target_size)
         self.linears = nn.ModuleList([nn.Linear(self.hidden_size, self.hidden_size) \
                                         for _ in range(self.num_layers)])
-        self.hyper = {'lr':1e-3,'adam_betas':(0.9,0.99),'epochs':100}
+        self.hyper = {'lr':1e-2,'adam_betas':(0.9,0.99),'epochs':50}
     
     def forward(self, x):
         # Set initial hidden and cell states 
@@ -237,7 +237,7 @@ class predictor(nn.Module):
 
         return
 
-
+from sklearn.metrics import accuracy_score
 def predictive_score(s_x,s_y,r_x,r_y,r_mask,y_dim):
 
     no, seq_len, dim = s_x.shape
@@ -266,7 +266,7 @@ def predictive_score(s_x,s_y,r_x,r_y,r_mask,y_dim):
     if y_dim ==2:
         r_preds = r_preds[:,1]
     auc = roc_auc_score(r_y[r_mask],r_preds[r_mask], multi_class='ovr')
-
+    #auc = accuracy_score(r_y[r_mask],np.argmax(r_preds[r_mask],axis=1))
 
     return auc
 
@@ -282,7 +282,7 @@ def discriminative_score(s_data,r_data):
 
     optimizer = torch.optim.Adam(disc_model.parameters(),lr=1e-3,betas=(0.9,0.99))
 
-    for i in range(50):
+    for i in range(30):
         optimizer.zero_grad()
 
         synt_pred = disc_model.forward(s_data[:split])

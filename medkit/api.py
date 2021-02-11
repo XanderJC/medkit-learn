@@ -10,7 +10,7 @@ import numpy as np
 import torch 
 
 
-def batch_generate(domain       = 'ICU',
+def batch_generate(domain       = 'Ward',
                     environment = 'SVAE',
                     policy      = 'LSTM',
                     actions     = 2,
@@ -29,7 +29,7 @@ def batch_generate(domain       = 'ICU',
     '''
     Base API function for generating a batch dataset 
     '''
-
+    
     if seed is not None:
         torch.manual_seed(seed)
         np.random.seed(seed)
@@ -164,18 +164,23 @@ def batch_generate(domain       = 'ICU',
 
     return data
 
-def live_simulate(domain        = 'ICU',
-                    environment = 'RNN',
-                    policy      = 'RNN',
+def live_simulate(domain       = 'Ward',
+                    environment = 'SVAE',
+                    policy      = 'LSTM',
+                    actions     = 2,
+                    confounders = None,
+                    overlooked  = None,
+                    stochastic  = False,
+                    variation   = 1.0,
                     **kwargs):
 
-    dom_dict = {'ICU':ICUDomain}
-    env_dict = {'RNN':RNNEnv}
-    pol_dict = {'RNN':RNNPol}
+    dom_dict = {'ICU':ICUDomain,'Ward':WardDomain,'CF':CFDomain}
+    env_dict = {'TForce':TForceEnv,'SVAE':SVAEEnv,'StateSpace':StateSpaceEnv,'CRN':CRNEnv}
+    pol_dict = {'LSTM':LSTMPol,'Linear':LinearPol,'MLP':MLPPol}
 
     if type(domain) is str:
         assert domain in dom_dict, 'Not a valid domain.'
-        dom = dom_dict[domain]()
+        dom = dom_dict[domain](y_dim=actions)
     else:
         assert issubclass(type(domain),BaseDomain)
         dom = domain
@@ -194,8 +199,17 @@ def live_simulate(domain        = 'ICU',
         assert issubclass(type(policy),BasePol)
         pol = policy
 
+
     # Build scenario 
-    scene = scenario(dom,env,pol)
+    scene = scenario(
+                domain      = dom,
+                environment = env,
+                policy      = pol,
+                confounders = confounders,
+                overlooked  = overlooked,
+                stochastic  = stochastic,
+                variation   = variation
+    )
 
     return scene
 

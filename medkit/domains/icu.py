@@ -21,7 +21,7 @@ class ICUDomain(BaseDomain):
         assert y_dim in valid_y
         self.y_dim         = y_dim
 
-        TForce_config = {'hidden_dim':128,'lr':1e-3,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':100}
+        TForce_config = {'hidden_dim':128,'lr':1e-2,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':100}
         SS_config = {'state_space_size':10,'encoder_hidden_dim':64,'emitter_hidden_dim':64,'hidden_dim':64,
                     'mix_components':5,'markov_order':5,'lr':1e-3, 'hidden_layers':1,'adam_betas':(0.9,0.99),
                     'epochs':100}
@@ -30,7 +30,7 @@ class ICUDomain(BaseDomain):
         CRN_config = {'hidden_dim': 128, 'lr': 1e-3, 'hidden_layers': 3, 'adam_betas': (0.9, 0.99), 'epochs': 100}
 
 
-        LSTM_config = {'hidden_dim':64,'lr':1e-3,'hidden_layers':1,'adam_betas':(0.9,0.99),'epochs':100}
+        LSTM_config = {'hidden_dim':64,'lr':1e-3,'hidden_layers':2,'adam_betas':(0.9,0.99),'epochs':200}
         MLP_config = {'hidden_dim':128,'lr':1e-3,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':100}
         Linear_config = {'lr':1e-3,'adam_betas':(0.9,0.99),'epochs':100}
 
