@@ -1,9 +1,9 @@
-from medkit.scenario import scenario
-from medkit.tools import scaler
+from .scenario import scenario
+from .tools import scaler
 
-from medkit.environments import * 
-from medkit.domains import * 
-from medkit.policies import * 
+from .environments import * 
+from .domains import * 
+from .policies import * 
 
 import pandas as pd
 import numpy as np
@@ -29,7 +29,7 @@ def batch_generate(domain       = 'Ward',
     '''
     Base API function for generating a batch dataset 
     '''
-    
+
     if seed is not None:
         torch.manual_seed(seed)
         np.random.seed(seed)

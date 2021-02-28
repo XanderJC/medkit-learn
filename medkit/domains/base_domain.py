@@ -81,8 +81,8 @@ class standard_dataset(BaseDataset):
 
         scale = scaler(domain)
 
-        path_head = f'{domain.base_name}/{domain.base_name}_temporal_train_data_eav.csv.gz'
-        path = resource_filename("data",path_head)
+        path_head = f'data/{domain.base_name}/{domain.base_name}_temporal_train_data_eav.csv.gz'
+        path = resource_filename("medkit",path_head)
     
         wards = pd.read_csv(path)
         series_df = pd.pivot_table(wards, index=['id', 'time'], columns='variable', 
@@ -120,9 +120,9 @@ class standard_dataset(BaseDataset):
 
         mask = (series[:,:,0] != 0).float()
 
-        path_head = f'{domain.base_name}/{domain.base_name}_static_train_data.csv.gz'
+        path_head = f'data/{domain.base_name}/{domain.base_name}_static_train_data.csv.gz'
 
-        path = resource_filename("data",path_head)
+        path = resource_filename("medkit",path_head)
         static_df = pd.read_csv(path)
         static_df.fillna(static_df.mean(),inplace=True)
 

@@ -16,7 +16,7 @@ class BaseInit(ABC):
         return
 
     def load_pretrained(self):
-        path = resource_filename("initialisers",f"saved_models/{self.domain.base_name}_{self.name}.pth")
+        path = resource_filename("medkit",f"initialisers/saved_models/{self.domain.base_name}_{self.name}.pth")
         self.model.load_state_dict(torch.load(path))
         pass
     
