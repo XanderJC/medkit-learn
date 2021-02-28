@@ -1,5 +1,4 @@
 from .__head__ import *
-from .base_policy import BasePol
 
 class mlp_pol(nn.Module):
     def __init__(self, domain):

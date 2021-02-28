@@ -1,5 +1,4 @@
 from .__head__ import *
-from .base_policy import BasePol
 
 class MixturePol(BasePol):
     def __init__(self,domain,pol_list,mixing_prob):

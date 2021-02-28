@@ -1,4 +1,5 @@
 from .__head__ import *
+from .base_reward import BaseReward
 
 class BaseEnv(gym.Env):
     '''
@@ -11,6 +12,8 @@ class BaseEnv(gym.Env):
         # model_config is a dictionary of hyperparameters (e.g. layer sizes)
         # for the model
         self.model = None # torch.nn.Module which for unified save/load/train
+
+        self.reward = BaseReward()
 
         return
 

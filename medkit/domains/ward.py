@@ -1,5 +1,4 @@
 from .__head__ import *
-from .base_domain import BaseDomain,BaseDataset
 
 class WardDomain(BaseDomain):
 
