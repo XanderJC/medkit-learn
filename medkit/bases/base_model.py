@@ -16,7 +16,7 @@ class BaseModel(nn.Module):
         elif form == 'initialisers':
             self.hyper = domain.init_config
 
-    def forward(self, x):
+    def forward(self,x):
 
         return NotImplementedError
 

@@ -87,7 +87,7 @@ class CRN_env(BaseModel):
 
 class CRNEnv(BaseEnv):
     def __init__(self, domain, load=True):
-
+        super(CRNEnv, self).__init__(domain)
         self.name = 'CRN'
 
         self.domain = domain

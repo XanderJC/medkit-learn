@@ -62,7 +62,7 @@ class RNN_env(BaseModel):
 
 class TForceEnv(BaseEnv):
     def __init__(self,domain,load=True):
-        
+        super(TForceEnv, self).__init__(domain)
         self.name = 'tforce'
         
         self.domain = domain

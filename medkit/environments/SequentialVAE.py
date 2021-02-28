@@ -161,6 +161,7 @@ class SVAE_env(BaseModel):
 
 class SVAEEnv(BaseEnv):
     def __init__(self,domain,load=True):
+        super(SVAEEnv, self).__init__(domain)
         
         self.name = 'SVAE'
         

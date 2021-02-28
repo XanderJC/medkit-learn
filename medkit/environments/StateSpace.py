@@ -225,6 +225,7 @@ class state_space_model(BaseModel):
 
 class StateSpaceEnv(BaseEnv):
     def __init__(self,domain,load=True):
+        super(StateSpaceEnv, self).__init__(domain)
         self.name = 'statespace'
         
         self.domain = domain

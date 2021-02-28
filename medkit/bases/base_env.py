@@ -8,7 +8,7 @@ class BaseEnv(gym.Env):
     def __init__(self,domain):
         super(BaseEnv, self).__init__()
         self.name = None # unique string 
-        self.model_config = domain.get_env_config(self.name)
+        #self.model_config = domain.get_env_config(self.name)
         # model_config is a dictionary of hyperparameters (e.g. layer sizes)
         # for the model
         self.model = None # torch.nn.Module which for unified save/load/train
@@ -63,4 +63,4 @@ class BaseEnv(gym.Env):
 
     def render(self, mode='human', close=False):
 
-        raise NotImplemenedError
+        raise NotImplementedError
