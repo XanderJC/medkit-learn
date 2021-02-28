@@ -94,9 +94,9 @@ class encoder_net(nn.Module):
         return re_rev_out
 
 
-class state_space_model(nn.Module):
+class state_space_model(BaseModel):
     def __init__(self,domain):
-        super(state_space_model, self).__init__()
+        super(state_space_model, self).__init__(domain, 'environments')
         self.name = 'statespace'
 
         self.static_in_dim = domain.static_in_dim
@@ -118,9 +118,6 @@ class state_space_model(nn.Module):
         self.T = nn.Parameter(torch.randn(self.S,self.S,self.y_dim))
         self.z_init_p = nn.Parameter(torch.ones(self.S))
         self.alpha = nn.Parameter(torch.ones(self.m_order,1))
-
-        self.hyper = domain.env_config
-        self.domain = domain
 
         return
 
@@ -224,36 +221,6 @@ class state_space_model(nn.Module):
         #print(f'kl: {kl_loss}')
         return neg_ll + kl_loss
     
-    def train(self,dataset,batch_size=128,private=False):
-        data_loader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True,drop_last=True)
-        optimizer = torch.optim.Adam(self.parameters(),lr=self.hyper['lr'],betas= self.hyper['adam_betas'])
-
-        sample_size = len(dataset)
-        privacy_engine = PrivacyEngine(self,batch_size, sample_size, alphas=[10, 100], noise_multiplier=0.1,
-                                        max_grad_norm=1.0, secure_rng = True)
-        if private:
-            privacy_engine.attach(optimizer)
-
-        for epoch in range(self.hyper['epochs']):
-            running_loss = 0
-            start = time.time()
-            for i,batch in enumerate(data_loader):
-                
-                optimizer.zero_grad()
-                loss = self.loss(batch)
-                loss.backward()
-                optimizer.step()
-
-                running_loss += loss
-            end = time.time()
-            average_loss = round((running_loss.detach().numpy()/(i+1)),5)
-            print(f'Epoch {epoch+1} average loss: {average_loss} ({round(end-start,2)} seconds)')
-
-        return
-    
-    def save_model(self):
-        path = resource_filename("environments", f"saved_models/{self.domain.name}_{self.name}.pth")
-        torch.save(self.state_dict(), path)
 
 
 class StateSpaceEnv(BaseEnv):

@@ -4,6 +4,7 @@ from gym import spaces
 import warnings
 from abc import ABC, abstractmethod 
 import time
+import pandas as pd
 
 import torch
 import torch.nn as nn
@@ -17,3 +18,5 @@ import opacus
 from opacus import PrivacyEngine
 
 from pkg_resources import resource_filename
+
+from medkit.tools.scalers import scaler

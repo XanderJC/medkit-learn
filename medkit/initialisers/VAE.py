@@ -52,12 +52,11 @@ class Decoder(nn.Module):
         return series_mean,series_lstd,series_prob,static_mean,static_lstd,static_prob
 
 
-class VAE(nn.Module):
+class VAE(BaseModel):
     def __init__(self,domain):
-        super(VAE, self).__init__()
+        super(VAE, self).__init__(domain,'initialisers')
         self.name = 'VAE'
         self.hyper = domain.init_config
-        self.domain = domain
 
         self.encoder = Encoder(domain)
         self.decoder = Decoder(domain)
@@ -98,42 +97,6 @@ class VAE(nn.Module):
                     static_cont_log_l.sum() + static_bin_log_l.sum()
 
         return kl_loss - (ll_loss/batch_size)
-
-    def train(self,dataset,batch_size=128):
-        data_loader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True,drop_last=True)
-        optimizer = torch.optim.Adam(self.parameters(),lr=self.hyper['lr'],betas= self.hyper['adam_betas'])
-
-        sample_size = len(dataset)
-        privacy_engine = PrivacyEngine(
-            self,
-            batch_size,
-            sample_size,
-            alphas=[10, 100],
-            noise_multiplier=0.1,
-            max_grad_norm=1.0,
-            secure_rng = True
-            )
-        #privacy_engine.attach(optimizer)
-        total_step = len(data_loader)
-        for epoch in range(self.hyper['epochs']):
-            running_loss = 0
-            start = time.time()
-            for i,batch in enumerate(data_loader):
-                
-                optimizer.zero_grad()
-                loss = self.loss(batch)
-                loss.backward()
-                optimizer.step()
-
-                running_loss += loss
-            end = time.time()
-            average_loss = round((running_loss.detach().numpy()/(i+1)),5)
-            print(f'Epoch {epoch+1} average loss: {average_loss} ({round(end-start,2)} seconds)')
-
-    def save_model(self):
-        path = resource_filename("initialisers",f"saved_models/{self.domain.base_name}_{self.name}.pth")
-        torch.save(self.state_dict(), path)
-
 
 
 class VAEInit(BaseInit):

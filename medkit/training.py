@@ -1,7 +1,8 @@
 from medkit.environments import TForceEnv, SVAEEnv, StateSpaceEnv, CRNEnv
-from medkit.domains import ICUDomain, WardDomain, CFDomain, standard_dataset
+from medkit.domains import ICUDomain, WardDomain, CFDomain
 from medkit.policies import LSTMPol, LinearPol, MLPPol
 from medkit.initialisers import VAEInit
+from medkit.bases import standard_dataset
 import torch
 from medkit.scenario import scenario
 
@@ -30,7 +31,7 @@ for env in ['TForce']:
 
 pol_dict = {'LSTM':LSTMPol,'Linear':LinearPol,'MLP':MLPPol}
 for pol in ['LSTM']:
-    for y_dim in [4,8]:
+    for y_dim in [2]:
 
         domain = ICUDomain(y_dim=y_dim)
         test_pol = pol_dict[pol](domain,load=False)

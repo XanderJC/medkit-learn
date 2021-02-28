@@ -1,9 +1,9 @@
 from .__head__ import *
 from medkit.initialisers.VAE import VAEInit
 
-class RNN_env(nn.Module):
+class RNN_env(BaseModel):
     def __init__(self, domain):
-        super(RNN_env, self).__init__()
+        super(RNN_env, self).__init__(domain,'environments')
         self.name = 'tforce'
         self.hidden_size = domain.env_config['hidden_dim']
         self.num_layers = domain.env_config['hidden_layers']
@@ -17,8 +17,6 @@ class RNN_env(nn.Module):
 
         self.bin_out_dim = domain.bin_out_dim
         self.con_out_dim = domain.con_out_dim
-        self.domain = domain
-        self.hyper = domain.env_config
     
     def forward(self, x):
         # Set initial hidden and cell states 
@@ -61,37 +59,6 @@ class RNN_env(nn.Module):
                 (bin_log_l * mask.expand((-1,-1,self.bin_out_dim))).sum()
 
         return -log_l / mask.sum()
-
-    def train(self,dataset,batch_size=128,private=False):
-        data_loader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True,drop_last=True)
-        optimizer = torch.optim.Adam(self.parameters(),lr=self.hyper['lr'],betas= self.hyper['adam_betas'])
-
-        sample_size = len(dataset)
-        privacy_engine = PrivacyEngine(self,batch_size, sample_size, alphas=[10, 100], noise_multiplier=0.1,
-                                        max_grad_norm=1.0, secure_rng = True)
-        if private:
-            privacy_engine.attach(optimizer)
-
-        for epoch in range(self.hyper['epochs']):
-            running_loss = 0
-            start = time.time()
-            for i,batch in enumerate(data_loader):
-                
-                optimizer.zero_grad()
-                loss = self.loss(batch)
-                loss.backward()
-                optimizer.step()
-
-                running_loss += loss
-            end = time.time()
-            average_loss = round((running_loss.detach().numpy()/(i+1)),5)
-            print(f'Epoch {epoch+1} average loss: {average_loss} ({round(end-start,2)} seconds)')
-
-        return
-
-    def save_model(self):
-        path = resource_filename("environments",f"saved_models/{self.domain.name}_{self.name}.pth")
-        torch.save(self.state_dict(), path)
 
 class TForceEnv(BaseEnv):
     def __init__(self,domain,load=True):

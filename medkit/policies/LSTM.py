@@ -1,8 +1,8 @@
 from .__head__ import *
 
-class RNN_pol(nn.Module):
+class RNN_pol(BaseModel):
     def __init__(self, domain):
-        super(RNN_pol, self).__init__()
+        super(RNN_pol, self).__init__(domain,'policies')
         self.name = 'lstm'
         self.hidden_size = domain.pol_config['hidden_dim']
         self.num_layers = domain.pol_config['hidden_layers']
@@ -11,9 +11,7 @@ class RNN_pol(nn.Module):
         self.fc = nn.Linear(self.hidden_size, domain.y_dim)
         self.linears = nn.ModuleList([nn.Linear(self.hidden_size, self.hidden_size) \
                                         for _ in range(self.num_layers)])
-        self.domain = domain
-        self.hyper = domain.pol_config
-    
+
     def forward(self, x):
         # Set initial hidden and cell states 
         h0 = torch.zeros(1, x.size(0), self.hidden_size)#.to(device) 
@@ -39,37 +37,6 @@ class RNN_pol(nn.Module):
         ll = dist.log_prob(y_series)
 
         return -ll.masked_select(mask.bool()).mean()
-
-    def train(self,dataset,batch_size=128,private=False):
-        data_loader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True,drop_last=True)
-        optimizer = torch.optim.Adam(self.parameters(),lr=self.hyper['lr'],betas= self.hyper['adam_betas'])
-
-        sample_size = len(dataset)
-        privacy_engine = PrivacyEngine(self,batch_size, sample_size, alphas=[10, 100], noise_multiplier=0.1,
-                                        max_grad_norm=1.0, secure_rng = True)
-        if private:
-            privacy_engine.attach(optimizer)
-
-        for epoch in range(self.hyper['epochs']):
-            running_loss = 0
-            start = time.time()
-            for i,batch in enumerate(data_loader):
-                
-                optimizer.zero_grad()
-                loss = self.loss(batch)
-                loss.backward()
-                optimizer.step()
-
-                running_loss += loss
-            end = time.time()
-            average_loss = round((running_loss.detach().numpy()/(i+1)),5)
-            print(f'Epoch {epoch+1} average loss: {average_loss} ({round(end-start,2)} seconds)')
-
-        return
-
-    def save_model(self):
-        path = resource_filename("policies",f"saved_models/{self.domain.name}_{self.name}.pth")
-        torch.save(self.state_dict(), path)
 
 
 class LSTMPol(BasePol):

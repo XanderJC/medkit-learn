@@ -3,7 +3,8 @@ from .tools import scaler
 
 from .environments import * 
 from .domains import * 
-from .policies import * 
+from .policies import *
+from .bases import *
 
 import pandas as pd
 import numpy as np

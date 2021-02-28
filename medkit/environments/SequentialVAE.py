@@ -63,12 +63,11 @@ class Decoder(nn.Module):
         return mean,lstd,prob
 
 
-class SVAE_env(nn.Module):
+class SVAE_env(BaseModel):
     def __init__(self, domain):
-        super(SVAE_env, self).__init__()
+        super(SVAE_env, self).__init__(domain,'environments')
         self.name = 'SVAE'
 
-        self.hyper = domain.env_config
         self.ae_hidden_size = self.hyper['ae_hidden_dim']
         self.ae_num_layers = self.hyper['ae_hidden_layers']
 
@@ -86,8 +85,6 @@ class SVAE_env(nn.Module):
 
         #self.h0 = nn.Parameter(torch.randn(1,1,self.t_hidden_size))
         #self.c0 = nn.Parameter(torch.randn(1,1,self.t_hidden_size))
-
-        self.domain = domain
     
     def lstm_forward(self, x):
         # Set initial hidden and cell states 
@@ -160,36 +157,6 @@ class SVAE_env(nn.Module):
                 r_loss.masked_select(mask.bool()).mean() + \
                 t_loss.masked_select(t_mask.squeeze().bool()).mean()
 
-    def train(self,dataset,batch_size=128,private=False):
-        data_loader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True,drop_last=True)
-        optimizer = torch.optim.Adam(self.parameters(),lr=self.hyper['lr'],betas= self.hyper['adam_betas'])
-
-        sample_size = len(dataset)
-        privacy_engine = PrivacyEngine(self,batch_size, sample_size, alphas=[10, 100], noise_multiplier=0.1,
-                                        max_grad_norm=1.0, secure_rng = True)
-        if private:
-            privacy_engine.attach(optimizer)
-
-        for epoch in range(self.hyper['epochs']):
-            running_loss = 0
-            start = time.time()
-            for i,batch in enumerate(data_loader):
-                
-                optimizer.zero_grad()
-                loss = self.loss(batch)
-                loss.backward()
-                optimizer.step()
-
-                running_loss += loss
-            end = time.time()
-            average_loss = round((running_loss.detach().numpy()/(i+1)),5)
-            print(f'Epoch {epoch+1} average loss: {average_loss} ({round(end-start,2)} seconds)')
-
-        return
-
-    def save_model(self):
-        path = resource_filename("environments",f"saved_models/{self.domain.name}_{self.name}.pth")
-        torch.save(self.state_dict(), path)
 
 
 class SVAEEnv(BaseEnv):
