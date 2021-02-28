@@ -5,7 +5,7 @@ class BaseReward():
         
         self.state_only = True
     
-    def get_reward(self,state,action):
+    def get_reward(self,state):
 
         reward = None
 

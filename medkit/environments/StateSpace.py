@@ -283,7 +283,7 @@ class StateSpaceEnv(BaseEnv):
         bin_sample = bin_dist.sample()
 
         observation = torch.cat((cont_sample,bin_sample),1)
-        reward = None
+        reward = self.reward.get_reward(observation)
         info = None
         done = torch.distributions.bernoulli.Bernoulli(self.domain.terminate).sample().bool()
 
