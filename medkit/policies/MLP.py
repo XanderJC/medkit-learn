@@ -45,6 +45,7 @@ class MLPPol(BasePol):
         self.model = mlp_pol(domain)
         if load:
             self.load_pretrained()
+            self.model.eval()
 
 
     def select_action(self,history,stochastic=False,temperature=1.0):

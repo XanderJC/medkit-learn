@@ -24,7 +24,7 @@ class BaseModel(nn.Module):
       
         return NotImplementedError
 
-    def train(self,dataset,batch_size=128,validation_set=None,private=False):
+    def fit(self,dataset,batch_size=128,validation_set=None,private=False):
         data_loader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True,drop_last=True)
         optimizer = torch.optim.Adam(self.parameters(),lr=self.hyper['lr'],betas= self.hyper['adam_betas'])
 
@@ -35,6 +35,7 @@ class BaseModel(nn.Module):
             privacy_engine.attach(optimizer)
 
         for epoch in range(self.hyper['epochs']):
+            self.train()
             running_loss = 0
             start = time.time()
             for i,batch in enumerate(data_loader):
@@ -50,6 +51,7 @@ class BaseModel(nn.Module):
             print(f'Epoch {epoch+1} average loss: {average_loss} ({round(end-start,2)} seconds)')
 
             if validation_set is not None:
+                self.eval()
                 validation_loss = round(float(self.loss(validation_set).detach()),5)
                 print(f'Epoch {epoch+1} validation loss: {validation_loss}')
 

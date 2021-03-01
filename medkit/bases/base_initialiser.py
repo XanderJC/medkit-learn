@@ -21,8 +21,8 @@ class BaseInit(ABC):
         self.model.load_state_dict(torch.load(path))
         pass
     
-    def train(self,*args,**kwargs):
-        self.model.train(*args,**kwargs)
+    def fit(self,*args,**kwargs):
+        self.model.fit(*args,**kwargs)
         return
 
     @abstractmethod

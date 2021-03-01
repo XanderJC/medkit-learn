@@ -18,7 +18,7 @@ setuptools.setup(
         'tqdm >= 4.54.1',
         'numpy >= 1.19.1',
         'pandas >= 1.1.2',
-        'opacus == 0.10.1',
+        'opacus >= 0.11.0',
         'gym >= 0.17.2',
         'scikit-learn >= 0.24.0'
     ],

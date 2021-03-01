@@ -23,8 +23,8 @@ class BasePol(ABC):
         path = resource_filename("medkit",f"policies/saved_models/{self.domain.name}_{self.name}.pth")
         torch.save(self.model.state_dict(), path)
 
-    def train(self,*args,**kwargs):
-        self.model.train(*args,**kwargs)
+    def fit(self,*args,**kwargs):
+        self.model.fit(*args,**kwargs)
         return
 
     @abstractmethod

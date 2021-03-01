@@ -29,7 +29,7 @@ class ICUDomain(BaseDomain):
         CRN_config = {'hidden_dim': 128, 'lr': 1e-3, 'hidden_layers': 3, 'adam_betas': (0.9, 0.99), 'epochs': 100}
 
 
-        LSTM_config = {'hidden_dim':64,'lr':1e-3,'hidden_layers':2,'adam_betas':(0.9,0.99),'epochs':200}
+        LSTM_config = {'hidden_dim':64,'lr':1e-3,'hidden_layers':2,'lstm_layers':1,'dropout':0.2,'adam_betas':(0.9,0.99),'epochs':200}
         MLP_config = {'hidden_dim':128,'lr':1e-3,'hidden_layers':3,'adam_betas':(0.9,0.99),'epochs':100}
         Linear_config = {'lr':1e-3,'adam_betas':(0.9,0.99),'epochs':100}
 

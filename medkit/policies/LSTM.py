@@ -4,26 +4,31 @@ class RNN_pol(BaseModel):
     def __init__(self, domain):
         super(RNN_pol, self).__init__(domain,'policies')
         self.name = 'lstm'
-        self.hidden_size = domain.pol_config['hidden_dim']
-        self.num_layers = domain.pol_config['hidden_layers']
+
+        self.hidden_size = self.hyper['hidden_dim']
+        self.num_layers = self.hyper['hidden_layers']
+        self.lstm_layers = self.hyper['lstm_layers']
+        self.dropout = self.hyper['dropout']
         self.input_size = domain.series_in_dim
-        self.lstm = opacus.layers.DPLSTM(self.input_size, self.hidden_size, batch_first=True)
-        self.fc = nn.Linear(self.hidden_size, domain.y_dim)
+
+        self.lstm = opacus.layers.DPLSTM(self.input_size, self.hidden_size, 
+                    self.lstm_layers, batch_first=True, dropout = self.dropout)
         self.linears = nn.ModuleList([nn.Linear(self.hidden_size, self.hidden_size) \
                                         for _ in range(self.num_layers)])
+        self.fc = nn.Linear(self.hidden_size, domain.y_dim)
 
     def forward(self, x):
         # Set initial hidden and cell states 
-        h0 = torch.zeros(1, x.size(0), self.hidden_size)#.to(device) 
-        c0 = torch.zeros(1, x.size(0), self.hidden_size)#.to(device)
+        h0 = torch.zeros(self.lstm_layers, x.size(0), self.hidden_size)
+        c0 = torch.zeros(self.lstm_layers, x.size(0), self.hidden_size)
         
-        # Forward propagate LSTM
+        # Forward LSTM
         out, _ = self.lstm(x, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size)
         
         for layer in self.linears:
             out = layer(out)
             out = F.elu(out)
-        # Decode the hidden state
+
         pred = self.fc(out)
         return pred
 
@@ -50,6 +55,7 @@ class LSTMPol(BasePol):
         self.model = RNN_pol(domain)
         if load:
             self.load_pretrained()
+            self.model.eval()
 
 
     def select_action(self,history,stochastic=False,temperature=1.0):
