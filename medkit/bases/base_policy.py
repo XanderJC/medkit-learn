@@ -5,13 +5,13 @@ class BasePol(ABC):
     Base Policy class
     '''
     def __init__(self,domain):
-        
+        super(BasePol, self).__init__()
         self.name = None
         self.model_config = domain.get_pol_config(self.name)
         # model_config is a dictionary of hyperparameters (e.g. layer sizes)
         # for the model 
 
-        self.model = BaseModel() # torch.nn.Module which for unified save/load/train
+        self.model = BaseModel # torch.nn.Module which for unified save/load/train
         return
 
     def load_pretrained(self):

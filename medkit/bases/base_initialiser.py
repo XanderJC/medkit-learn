@@ -6,14 +6,14 @@ class BaseInit(ABC):
     Base Initialiser class
     '''
     def __init__(self,domain):
-        
+        super(BaseInit, self).__init__()
         self.name = None
         #self.model_config = domain.get_init_config(self.name)
         self.model_config = None
         # model_config is a dictionary of hyperparameters (e.g. layer sizes)
         # for the model 
 
-        self.model = BaseModel() # torch.nn.Module which for unified save/load/train
+        self.model = BaseModel # torch.nn.Module which for unified save/load/train
         return
 
     def load_pretrained(self):

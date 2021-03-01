@@ -12,7 +12,7 @@ class BaseEnv(gym.Env):
         #self.model_config = domain.get_env_config(self.name)
         # model_config is a dictionary of hyperparameters (e.g. layer sizes)
         # for the model
-        self.model = BaseModel() # torch.nn.Module which for unified save/load/train
+        self.model = BaseModel # torch.nn.Module which for unified save/load/train
 
         self.reward = BaseReward()
 

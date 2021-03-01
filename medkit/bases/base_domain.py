@@ -6,7 +6,7 @@ class BaseDomain(ABC):
     and policy classes. In this way they act as essentially config files.
     '''
     def __init__(self):
-        
+        super(BaseDomain, self).__init__()
         # Define key features of dataset
         self.name          = None #string
         self.static_in_dim = None #int
@@ -57,6 +57,7 @@ class BaseDataset(torch.utils.data.Dataset):
     Not particularly designed for end-user, but for pre-training models.
     '''
     def __init__(self):
+        super(BaseDataset, self).__init__()
         self.N = None #No. of items in dataset
         self.X_static = None # Static features [N,static_dim]
         self.X_series = None # Series features [N,max_seq_length,series_dim]
@@ -82,7 +83,7 @@ class standard_dataset(BaseDataset):
     Dataset to be passed to a torch DataLoader
     '''
     def __init__(self,domain,max_seq_length=50,test=False,save_scale=False):
-
+        super(standard_dataset, self).__init__()
         scale = scaler(domain)
         fold = 'train'
         if test:
@@ -90,8 +91,8 @@ class standard_dataset(BaseDataset):
         path_head = f'data/{domain.base_name}/{domain.base_name}_temporal_{fold}_data_eav.csv.gz'
         path = resource_filename("medkit",path_head)
     
-        wards = pd.read_csv(path)
-        series_df = pd.pivot_table(wards, index=['id', 'time'], columns='variable', 
+        data = pd.read_csv(path)
+        series_df = pd.pivot_table(data, index=['id', 'time'], columns='variable', 
                                     values='value').reset_index(level=[0, 1])
         series_df.fillna(method='ffill',inplace=True)
         series_df.fillna(0,inplace=True)
