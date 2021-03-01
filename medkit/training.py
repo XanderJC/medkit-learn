@@ -15,17 +15,18 @@ test_init.train(data,batch_size=64)
 test_init.model.save_model()
 '''
 
-'''
+
 env_dict = {'TForce':TForceEnv,'SVAE':SVAEEnv,'StateSpace':StateSpaceEnv,'CRN':CRNEnv}
-for env in ['TForce']:
-    for y_dim in [2,4,8]:
+for env in ['SVAE']:
+    for y_dim in [2]:
 
         domain = ICUDomain(y_dim=y_dim)
         test_env = env_dict[env](domain,load=False)
 
         data = standard_dataset(domain)
+        validation_data = standard_dataset(domain,test=True).get_whole_batch()
         print(f'{env}: {y_dim}')
-        test_env.train(data,batch_size=64)
+        test_env.fit(data,batch_size=64, validation_set=validation_data)
         #test_env.model.save_model()
 '''
 
@@ -41,7 +42,7 @@ for pol in ['LSTM']:
         print(f'{pol}: {y_dim}')
         test_pol.fit(data, batch_size=64, validation_set=validation_data)
         #test_pol.model.save_model()
-
+'''
 
 '''
 domain = WardDomain(y_dim=8)

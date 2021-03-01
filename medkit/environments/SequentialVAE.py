@@ -77,26 +77,26 @@ class SVAE_env(BaseModel):
         self.decoder = Decoder(domain)
 
         self.t_hidden_size = self.hyper['t_hidden_dim']
+        self.t_lstm_layers = self.hyper['t_lstm_layers']
 
         self.t_input_size = self.latent_size + domain.y_dim
-        self.lstm = opacus.layers.DPLSTM(self.t_input_size, self.t_hidden_size, batch_first=True)
+
+        self.lstm = opacus.layers.DPLSTM(self.t_input_size, self.t_hidden_size,
+                                            self.t_lstm_layers, batch_first=True)
+
         self.fc_mean = nn.Linear(self.t_hidden_size, self.latent_size)
         self.fc_std = nn.Linear(self.t_hidden_size, self.latent_size)
 
-        #self.h0 = nn.Parameter(torch.randn(1,1,self.t_hidden_size))
-        #self.c0 = nn.Parameter(torch.randn(1,1,self.t_hidden_size))
     
     def lstm_forward(self, x):
         # Set initial hidden and cell states 
-        h0 = torch.zeros(1, x.size(0), self.t_hidden_size)#.to(device) 
-        c0 = torch.zeros(1, x.size(0), self.t_hidden_size)#.to(device)
-        #h0 = self.h0.expand((1, x.size(0), self.t_hidden_size))
-        #c0 = self.c0.expand((1, x.size(0), self.t_hidden_size))
+        h0 = torch.zeros(self.t_lstm_layers, x.size(0), self.t_hidden_size)
+        c0 = torch.zeros(self.t_lstm_layers, x.size(0), self.t_hidden_size)
+
         
         # Forward propagate LSTM
         out, _ = self.lstm(x, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size)
         
-        # Decode the hidden state for all time steps step
         means = self.fc_mean(out)
         lstds = self.fc_std(out)
         return means,lstds 
@@ -216,8 +216,8 @@ class SVAEEnv(BaseEnv):
     def reset(self):
 
         # Initialise LSTM hidden states
-        self.hn = torch.zeros(1, 1, self.model.t_hidden_size)
-        self.cn = torch.zeros(1, 1, self.model.t_hidden_size)
+        self.hn = torch.zeros(self.model.t_lstm_layers, 1, self.model.t_hidden_size)
+        self.cn = torch.zeros(self.model.t_lstm_layers, 1, self.model.t_hidden_size)
 
         init_obs,static_obs = self.initialiser.sample()
         self.prev_obs = init_obs

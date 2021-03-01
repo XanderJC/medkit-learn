@@ -10,12 +10,17 @@ class CRN_env(BaseModel):
     def __init__(self, domain):
         super(CRN_env, self).__init__(domain,'environments')
         self.name = 'CRN'
-        self.hidden_size = domain.env_config['hidden_dim']
-        self.num_layers = domain.env_config['hidden_layers']
+        self.hidden_size = self.hyper['hidden_dim']
+        self.num_layers = self.hyper['hidden_layers']
+        self.lstm_layers = self.hyper['lstm_layers']
+        self.dropout = self.hyper['dropout']
+
         self.input_size = domain.series_in_dim + domain.y_dim
         self.y_dim = domain.y_dim
 
-        self.lstm = opacus.layers.DPLSTM(self.input_size, self.hidden_size, batch_first=True)
+        self.lstm = opacus.layers.DPLSTM(self.input_size, self.hidden_size, 
+                    self.lstm_layers, batch_first=True, dropout = self.dropout)
+
         self.fc_bin = nn.Linear(self.hidden_size + self.y_dim, domain.bin_out_dim)
         self.fc_cont = nn.Linear(self.hidden_size + self.y_dim, 2 * domain.con_out_dim)
 
@@ -34,8 +39,8 @@ class CRN_env(BaseModel):
         x = torch.cat((x[:, :, :-self.y_dim], previous_action), dim=-1)
 
         # Set initial hidden and cell states
-        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size)  # .to(device)
-        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size)  # .to(device)
+        h0 = torch.zeros(self.lstm_layers, x.size(0), self.hidden_size)
+        c0 = torch.zeros(self.lstm_layers, x.size(0), self.hidden_size)
 
         # Forward propagate LSTM
         out, _ = self.lstm(x, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size)
@@ -136,8 +141,8 @@ class CRNEnv(BaseEnv):
     def reset(self):
 
         # Initialise LSTM hidden states
-        self.hn = torch.zeros(self.model.num_layers, 1, self.model.hidden_size)
-        self.cn = torch.zeros(self.model.num_layers, 1, self.model.hidden_size)
+        self.hn = torch.zeros(self.model.lstm_layers, 1, self.model.hidden_size)
+        self.cn = torch.zeros(self.model.lstm_layers, 1, self.model.hidden_size)
 
         init_obs, static_obs = self.initialiser.sample()
         self.prev_obs = init_obs
