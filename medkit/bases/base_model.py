@@ -24,7 +24,7 @@ class BaseModel(nn.Module):
       
         return NotImplementedError
 
-    def train(self,dataset,batch_size=128,private=False):
+    def train(self,dataset,batch_size=128,validation_set=None,private=False):
         data_loader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True,drop_last=True)
         optimizer = torch.optim.Adam(self.parameters(),lr=self.hyper['lr'],betas= self.hyper['adam_betas'])
 
@@ -48,6 +48,10 @@ class BaseModel(nn.Module):
             end = time.time()
             average_loss = round((running_loss.detach().numpy()/(i+1)),5)
             print(f'Epoch {epoch+1} average loss: {average_loss} ({round(end-start,2)} seconds)')
+
+            if validation_set is not None:
+                validation_loss = round(float(self.loss(validation_set).detach()),5)
+                print(f'Epoch {epoch+1} validation loss: {validation_loss}')
 
         return
 

@@ -14,19 +14,23 @@ class scaler(nn.Module):
 
     def fit_static(self,x_static):
 
-        mean = torch.zeros([self.domain.static_in_dim])
-        std = torch.ones([self.domain.static_in_dim])
+        try:
+            self.load_params()
+        except:
+            mean = torch.zeros([self.domain.static_in_dim])
+            std = torch.ones([self.domain.static_in_dim])
 
-        mean[:self.domain.static_con_dim] = x_static.mean(axis=0)[:self.domain.static_con_dim]
-        std[:self.domain.static_con_dim] = x_static.std(axis=0)[:self.domain.static_con_dim]
+            mean[:self.domain.static_con_dim] = x_static.mean(axis=0)[:self.domain.static_con_dim]
+            std[:self.domain.static_con_dim] = x_static.std(axis=0)[:self.domain.static_con_dim]
 
-        self.static_mean = nn.Parameter(mean,requires_grad=False)
-        self.static_std = nn.Parameter(std,requires_grad=False)
+            self.static_mean = nn.Parameter(mean,requires_grad=False)
+            self.static_std = nn.Parameter(std,requires_grad=False)
 
         normed_static = (x_static - self.static_mean) / self.static_std
         return normed_static
 
     def fit_series(self,x_series,mask):
+        
         try:
             self.load_params()
         except:

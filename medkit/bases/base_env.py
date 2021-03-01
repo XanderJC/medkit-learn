@@ -1,5 +1,6 @@
 from .__head__ import *
 from .base_reward import BaseReward
+from .base_model import BaseModel
 
 class BaseEnv(gym.Env):
     '''
@@ -11,7 +12,7 @@ class BaseEnv(gym.Env):
         #self.model_config = domain.get_env_config(self.name)
         # model_config is a dictionary of hyperparameters (e.g. layer sizes)
         # for the model
-        self.model = None # torch.nn.Module which for unified save/load/train
+        self.model = BaseModel() # torch.nn.Module which for unified save/load/train
 
         self.reward = BaseReward()
 
@@ -30,11 +31,8 @@ class BaseEnv(gym.Env):
         path = resource_filename("medkit",f"environments/saved_models/{self.domain.name}_{self.name}.pth")
         torch.save(self.model.state_dict(), path)
 
-    def train(self,dataset,batch_size=128):
-        '''
-        Takes a torch DataLoader(BaseDataset).
-        '''
-        self.model.train(dataset,batch_size=batch_size)
+    def train(self,*args,**kwargs):
+        self.model.train(*args,**kwargs)
         return
 
     '''

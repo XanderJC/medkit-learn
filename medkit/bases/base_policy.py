@@ -1,5 +1,5 @@
 from .__head__ import *
-
+from .base_model import BaseModel
 class BasePol(ABC):
     '''
     Base Policy class
@@ -11,7 +11,7 @@ class BasePol(ABC):
         # model_config is a dictionary of hyperparameters (e.g. layer sizes)
         # for the model 
 
-        self.model = None # torch.nn.Module which for unified save/load/train
+        self.model = BaseModel() # torch.nn.Module which for unified save/load/train
         return
 
     def load_pretrained(self):
@@ -22,9 +22,9 @@ class BasePol(ABC):
     def save_model(self):
         path = resource_filename("medkit",f"policies/saved_models/{self.domain.name}_{self.name}.pth")
         torch.save(self.model.state_dict(), path)
-    
-    def train(self,dataset,batch_size=128):
-        self.model.train(dataset,batch_size=batch_size)
+
+    def train(self,*args,**kwargs):
+        self.model.train(*args,**kwargs)
         return
 
     @abstractmethod

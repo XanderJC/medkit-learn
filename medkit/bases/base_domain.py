@@ -63,6 +63,7 @@ class BaseDataset(torch.utils.data.Dataset):
         self.X_mask = None # Mask [N,max_seq_length]
         self.y_series = None # Static features [N,max_seq_length]
 
+
     def __len__(self):
         'Total number of samples'
         return self.N
@@ -71,17 +72,22 @@ class BaseDataset(torch.utils.data.Dataset):
         'Generates one batch of data'
         return self.X_static[index], self.X_series[index], self.X_mask[index], self.y_series[index]
 
+    def get_whole_batch(self):
+        'Returns all data as a single batch'
+        return self.X_static, self.X_series, self. X_mask, self.y_series
+
 
 class standard_dataset(BaseDataset):
     '''
     Dataset to be passed to a torch DataLoader
     '''
-    def __init__(self,domain,max_seq_length=50,save_scale=False):
-
+    def __init__(self,domain,max_seq_length=50,test=False,save_scale=False):
 
         scale = scaler(domain)
-
-        path_head = f'data/{domain.base_name}/{domain.base_name}_temporal_train_data_eav.csv.gz'
+        fold = 'train'
+        if test:
+            fold = 'test'
+        path_head = f'data/{domain.base_name}/{domain.base_name}_temporal_{fold}_data_eav.csv.gz'
         path = resource_filename("medkit",path_head)
     
         wards = pd.read_csv(path)
@@ -89,7 +95,6 @@ class standard_dataset(BaseDataset):
                                     values='value').reset_index(level=[0, 1])
         series_df.fillna(method='ffill',inplace=True)
         series_df.fillna(0,inplace=True)
-
 
         unique_ids = pd.unique(series_df['id'])
 
@@ -120,7 +125,7 @@ class standard_dataset(BaseDataset):
 
         mask = (series[:,:,0] != 0).float()
 
-        path_head = f'data/{domain.base_name}/{domain.base_name}_static_train_data.csv.gz'
+        path_head = f'data/{domain.base_name}/{domain.base_name}_static_{fold}_data.csv.gz'
 
         path = resource_filename("medkit",path_head)
         static_df = pd.read_csv(path)

@@ -1,4 +1,5 @@
 from .__head__ import *
+from .base_model import BaseModel
 
 class BaseInit(ABC):
     '''
@@ -12,7 +13,7 @@ class BaseInit(ABC):
         # model_config is a dictionary of hyperparameters (e.g. layer sizes)
         # for the model 
 
-        self.model = None # torch.nn.Module which for unified save/load/train
+        self.model = BaseModel() # torch.nn.Module which for unified save/load/train
         return
 
     def load_pretrained(self):
@@ -20,8 +21,8 @@ class BaseInit(ABC):
         self.model.load_state_dict(torch.load(path))
         pass
     
-    def train(self,dataset,batch_size=128):
-        self.model.train(dataset,batch_size=128)
+    def train(self,*args,**kwargs):
+        self.model.train(*args,**kwargs)
         return
 
     @abstractmethod

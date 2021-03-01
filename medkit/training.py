@@ -37,9 +37,10 @@ for pol in ['LSTM']:
         test_pol = pol_dict[pol](domain,load=False)
 
         data = standard_dataset(domain)
+        validation_data = standard_dataset(domain,test=True).get_whole_batch()
         print(f'{pol}: {y_dim}')
-        test_pol.train(data,batch_size=64)
-        test_pol.model.save_model()
+        test_pol.train(data, batch_size=64, validation_set=validation_data)
+        #test_pol.model.save_model()
 
 
 '''
