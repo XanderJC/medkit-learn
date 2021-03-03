@@ -17,7 +17,7 @@ test_init.model.save_model()
 
 
 env_dict = {'TForce':TForceEnv,'SVAE':SVAEEnv,'StateSpace':StateSpaceEnv,'CRN':CRNEnv}
-for env in ['SVAE']:
+for env in ['TForce']:
     for y_dim in [2]:
 
         domain = ICUDomain(y_dim=y_dim)

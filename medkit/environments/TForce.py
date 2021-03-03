@@ -1,5 +1,5 @@
 from .__head__ import *
-from medkit.initialisers.VAE import VAEInit
+from medkit.initialisers import VAEInit
 
 class RNN_env(BaseModel):
     def __init__(self, domain):
@@ -10,7 +10,7 @@ class RNN_env(BaseModel):
         self.lstm_layers = self.hyper['lstm_layers']
         self.dropout = self.hyper['dropout']
 
-        self.input_size = domain.series_in_dim + domain.y_dim
+        self.input_size = domain.series_in_dim + domain.y_dim + domain.static_in_dim
 
         self.lstm = opacus.layers.DPLSTM(self.input_size, self.hidden_size, 
                     self.lstm_layers, batch_first=True, dropout = self.dropout)
@@ -46,7 +46,7 @@ class RNN_env(BaseModel):
 
         y_one_hot = F.one_hot(y_series.long(),self.domain.y_dim)
 
-        concat = torch.cat((x_series,y_one_hot),2)
+        concat = torch.cat((x_series,y_one_hot,x_static.unsqueeze(1).expand((-1,seq_length,-1))),2)
         inputs = concat[:,:-1,:]
         outputs = x_series[:,1:,:]
 
@@ -84,7 +84,7 @@ class TForceEnv(BaseEnv):
         action = action.reshape((1,1))
         action_one_hot = F.one_hot(action,self.domain.y_dim)
 
-        x = torch.cat((self.prev_obs,action_one_hot),2)
+        x = torch.cat((self.prev_obs,action_one_hot,self.static),2)
 
         out, (self.hn,self.cn) = self.model.lstm(x, (self.hn, self.cn))
 
@@ -115,6 +115,8 @@ class TForceEnv(BaseEnv):
 
         init_obs,static_obs = self.initialiser.sample()
         self.prev_obs = init_obs
+
+        self.static = static_obs
 
         return static_obs.reshape((self.domain.static_in_dim)),init_obs.reshape((self.domain.series_in_dim))
 
