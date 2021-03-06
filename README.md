@@ -4,6 +4,8 @@
 
 # The Medkit-learn(ing) Environment
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 Medkit is a synthetic data generation library for medical sequential decision problems.
 
 The aim is to solve two problems commonly faced when applying machine learning in the area:
