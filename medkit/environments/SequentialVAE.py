@@ -79,7 +79,7 @@ class SVAE_env(BaseModel):
         self.t_hidden_size = self.hyper['t_hidden_dim']
         self.t_lstm_layers = self.hyper['t_lstm_layers']
 
-        self.t_input_size = self.latent_size + domain.y_dim
+        self.t_input_size = self.latent_size + domain.y_dim + domain.static_in_dim
 
         self.lstm = opacus.layers.DPLSTM(self.t_input_size, self.t_hidden_size,
                                             self.t_lstm_layers, batch_first=True)
@@ -145,7 +145,7 @@ class SVAE_env(BaseModel):
 
         y_one_hot = F.one_hot(y_series.long(),self.domain.y_dim)
 
-        concat = torch.cat((latents,y_one_hot),2)
+        concat = torch.cat((x_series,y_one_hot,x_static.unsqueeze(1).expand((-1,seq_length,-1))),2)
         inputs = concat[:,:-1,:]
         targets = latents[:,1:,:]
 
@@ -182,7 +182,7 @@ class SVAEEnv(BaseEnv):
         action = action.reshape((1,1))
         action_one_hot = F.one_hot(action,self.domain.y_dim)
 
-        x = torch.cat((self.prev_latent,action_one_hot),2)
+        x = torch.cat((self.prev_latent,action_one_hot,self.static),2)
 
         out, (self.hn,self.cn) = self.model.lstm(x, (self.hn, self.cn))
 
@@ -226,6 +226,8 @@ class SVAEEnv(BaseEnv):
 
         latent_dist = torch.distributions.normal.Normal(mean,torch.exp(lstd))
         self.prev_latent = latent_dist.sample()
+
+        self.static = static_obs
 
         return static_obs.reshape((self.domain.static_in_dim)),init_obs.reshape((self.domain.series_in_dim))
 
