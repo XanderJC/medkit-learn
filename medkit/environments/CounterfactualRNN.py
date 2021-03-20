@@ -8,18 +8,23 @@ from torch.autograd import Function
 
 class CRN_env(BaseModel):
     def __init__(self, domain):
-        super(CRN_env, self).__init__(domain,'environments')
-        self.name = 'CRN'
-        self.hidden_size = self.hyper['hidden_dim']
-        self.num_layers = self.hyper['hidden_layers']
-        self.lstm_layers = self.hyper['lstm_layers']
-        self.dropout = self.hyper['dropout']
+        super(CRN_env, self).__init__(domain, "environments")
+        self.name = "CRN"
+        self.hidden_size = self.hyper["hidden_dim"]
+        self.num_layers = self.hyper["hidden_layers"]
+        self.lstm_layers = self.hyper["lstm_layers"]
+        self.dropout = self.hyper["dropout"]
 
         self.input_size = domain.series_in_dim + domain.y_dim
         self.y_dim = domain.y_dim
 
-        self.lstm = opacus.layers.DPLSTM(self.input_size, self.hidden_size, 
-                    self.lstm_layers, batch_first=True, dropout = self.dropout)
+        self.lstm = opacus.layers.DPLSTM(
+            self.input_size,
+            self.hidden_size,
+            self.lstm_layers,
+            batch_first=True,
+            dropout=self.dropout,
+        )
 
         self.fc_bin = nn.Linear(self.hidden_size + self.y_dim, domain.bin_out_dim)
         self.fc_cont = nn.Linear(self.hidden_size + self.y_dim, 2 * domain.con_out_dim)
@@ -34,16 +39,22 @@ class CRN_env(BaseModel):
         self.hyper = domain.env_config
 
     def forward(self, x):
-        current_action = x[:, :, -self.y_dim:].reshape(shape=(x.size(0), x.size(1), self.y_dim))
-        previous_action = torch.cat((torch.zeros(x.size(0), 1, self.y_dim), current_action[:, :-1, :]), dim=1)
-        x = torch.cat((x[:, :, :-self.y_dim], previous_action), dim=-1)
+        current_action = x[:, :, -self.y_dim :].reshape(
+            shape=(x.size(0), x.size(1), self.y_dim)
+        )
+        previous_action = torch.cat(
+            (torch.zeros(x.size(0), 1, self.y_dim), current_action[:, :-1, :]), dim=1
+        )
+        x = torch.cat((x[:, :, : -self.y_dim], previous_action), dim=-1)
 
         # Set initial hidden and cell states
         h0 = torch.zeros(self.lstm_layers, x.size(0), self.hidden_size)
         c0 = torch.zeros(self.lstm_layers, x.size(0), self.hidden_size)
 
         # Forward propagate LSTM
-        out, _ = self.lstm(x, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size)
+        out, _ = self.lstm(
+            x, (h0, c0)
+        )  # out: tensor of shape (batch_size, seq_length, hidden_size)
 
         balancing_rep = out[:, :, :]
 
@@ -73,17 +84,23 @@ class CRN_env(BaseModel):
         action_prob = F.softmax(act_pred, dim=-1)
         actions_true = y_one_hot[:, :-1, :]
 
-        loss_action = ((- actions_true * torch.log(action_prob + 1e-8)) * mask.expand((-1, -1, self.y_dim))).sum()
+        loss_action = (
+            (-actions_true * torch.log(action_prob + 1e-8))
+            * mask.expand((-1, -1, self.y_dim))
+        ).sum()
 
-        cont_dist = torch.distributions.normal.Normal(cont_pars[:, :, :self.con_out_dim],
-                                                      F.softplus(cont_pars[:, :, self.con_out_dim:]))
-        cont_log_l = cont_dist.log_prob(outputs[:, :, :self.con_out_dim])
+        cont_dist = torch.distributions.normal.Normal(
+            cont_pars[:, :, : self.con_out_dim],
+            F.softplus(cont_pars[:, :, self.con_out_dim :]),
+        )
+        cont_log_l = cont_dist.log_prob(outputs[:, :, : self.con_out_dim])
 
         bin_dist = torch.distributions.bernoulli.Bernoulli(bin_pars)
-        bin_log_l = bin_dist.log_prob(outputs[:, :, self.con_out_dim:])
+        bin_log_l = bin_dist.log_prob(outputs[:, :, self.con_out_dim :])
 
-        log_l = (cont_log_l * mask.expand((-1, -1, self.con_out_dim))).sum() + \
-                (bin_log_l * mask.expand((-1, -1, self.bin_out_dim))).sum()
+        log_l = (cont_log_l * mask.expand((-1, -1, self.con_out_dim))).sum() + (
+            bin_log_l * mask.expand((-1, -1, self.bin_out_dim))
+        ).sum()
 
         total_loss = -log_l + loss_action
 
@@ -93,7 +110,7 @@ class CRN_env(BaseModel):
 class CRNEnv(BaseEnv):
     def __init__(self, domain, load=True):
         super(CRNEnv, self).__init__(domain)
-        self.name = 'CRN'
+        self.name = "CRN"
 
         self.domain = domain
         self.domain.get_env_config(self.name)
@@ -110,20 +127,29 @@ class CRNEnv(BaseEnv):
 
         x = torch.cat((self.prev_obs, action_one_hot), 2)
 
-        current_action = x[:, :, -self.domain.y_dim:].reshape(shape=(x.size(0), x.size(1), self.domain.y_dim))
-        previous_action = torch.cat((torch.zeros(x.size(0), 1, self.domain.y_dim), current_action[:, :-1, :]), dim=1)
-        x = torch.cat((x[:, :, :-self.domain.y_dim], previous_action), dim=-1)
+        current_action = x[:, :, -self.domain.y_dim :].reshape(
+            shape=(x.size(0), x.size(1), self.domain.y_dim)
+        )
+        previous_action = torch.cat(
+            (torch.zeros(x.size(0), 1, self.domain.y_dim), current_action[:, :-1, :]),
+            dim=1,
+        )
+        x = torch.cat((x[:, :, : -self.domain.y_dim], previous_action), dim=-1)
 
         out, (self.hn, self.cn) = self.model.lstm(x, (self.hn, self.cn))
 
         balancing_rep = out[:, -1, :]
-        pred_input = torch.cat((balancing_rep, action_one_hot.reshape(-1, self.domain.y_dim)), dim=-1)
+        pred_input = torch.cat(
+            (balancing_rep, action_one_hot.reshape(-1, self.domain.y_dim)), dim=-1
+        )
 
         cont_pars = self.model.fc_cont(pred_input)
         bin_pars = torch.sigmoid(self.model.fc_bin(pred_input))
 
-        cont_dist = torch.distributions.normal.Normal(cont_pars[:, :self.domain.con_out_dim],
-                                                      F.softplus(cont_pars[:, self.domain.con_out_dim:]))
+        cont_dist = torch.distributions.normal.Normal(
+            cont_pars[:, : self.domain.con_out_dim],
+            F.softplus(cont_pars[:, self.domain.con_out_dim :]),
+        )
         cont_sample = cont_dist.sample()
 
         bin_dist = torch.distributions.bernoulli.Bernoulli(bin_pars)
@@ -147,16 +173,16 @@ class CRNEnv(BaseEnv):
         init_obs, static_obs = self.initialiser.sample()
         self.prev_obs = init_obs
 
-        return static_obs.reshape((self.domain.static_in_dim)), init_obs.reshape((self.domain.series_in_dim))
+        return static_obs.reshape((self.domain.static_in_dim)), init_obs.reshape(
+            (self.domain.series_in_dim)
+        )
 
     def render(self):
 
         obs = list(self.prev_obs.reshape((self.domain.series_in_dim)))
 
         for name, value in zip(self.domain.series_names, obs):
-            print(f'{name}: {value}')
-
-
+            print(f"{name}: {value}")
 
 
 # FROM https://github.com/jvanvugt/pytorch-domain-adaptation/
@@ -188,4 +214,3 @@ class GradientReversal(torch.nn.Module):
 
     def forward(self, x):
         return GradientReversalFunction.apply(x, self.lambda_)
-

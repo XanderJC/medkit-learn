@@ -1,11 +1,9 @@
-
-
-class BaseReward():
+class BaseReward:
     def __init__(self):
-        
+
         self.state_only = True
-    
-    def get_reward(self,state):
+
+    def get_reward(self, state):
 
         reward = None
 
