@@ -48,11 +48,17 @@ class standard_dataset(BaseDataset):
         path = resource_filename("medkit", path_head)
 
         data = pd.read_csv(path)
-        series_df = pd.pivot_table(
-            data, index=["id", "time"], columns="variable", values="value"
-        ).reset_index(level=[0, 1])
-        series_df.fillna(method="ffill", inplace=True)
-        series_df.fillna(0, inplace=True)
+        if domain.base_name == "icu":
+            series_df = data
+            series_df.fillna(series_df.mean(), inplace=True)
+        else:
+            series_df = pd.pivot_table(
+                data, index=["id", "time"], columns="variable", values="value"
+            ).reset_index(level=[0, 1])
+
+            series_df.fillna(method="ffill", inplace=True)
+
+            series_df.fillna(0, inplace=True)
 
         unique_ids = pd.unique(series_df["id"])
 
@@ -64,9 +70,11 @@ class standard_dataset(BaseDataset):
         for i, ids in enumerate(unique_ids):
             patient = series_df[series_df["id"] == ids].sort_values(by=["time"])
             cov = patient[domain.series_names].to_numpy()
-            cov[:, -domain.bin_out_dim :] = (cov[:, -domain.bin_out_dim :] > 0).astype(
-                int
-            )
+
+            if domain.bin_out_dim > 0:
+                cov[:, -domain.bin_out_dim :] = (cov[:, -domain.bin_out_dim :] > 0).astype(
+                    int
+                )
             targets = patient[domain.action_names].to_numpy()
             targets = (targets > 0).astype(int)
             y = targets[:, 0]
@@ -92,6 +100,7 @@ class standard_dataset(BaseDataset):
         path = resource_filename("medkit", path_head)
         static_df = pd.read_csv(path)
         static_df.fillna(static_df.mean(), inplace=True)
+
 
         static = torch.zeros((len(unique_ids), domain.static_in_dim))
 

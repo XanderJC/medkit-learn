@@ -5,16 +5,16 @@ class ICUDomain(BaseDomain):
     def __init__(self, y_dim=2):
         self.base_name = "icu"
         self.name = self.base_name + f"_{y_dim}"
-        self.static_in_dim = 36
-        self.series_in_dim = 24
+        self.static_in_dim = 32
+        self.series_in_dim = 38
 
-        self.static_bin_dim = 30
-        self.static_con_dim = 6
-        self.out_dim = 24
-        self.bin_out_dim = 1
-        self.con_out_dim = 23
+        self.static_bin_dim = 29
+        self.static_con_dim = 3
+        self.out_dim = 38
+        self.bin_out_dim = 0
+        self.con_out_dim = 38
 
-        self.terminate = 0.1119
+        self.terminate = 0.0601
 
         valid_y = [2, 4, 8]
         assert y_dim in valid_y
@@ -102,74 +102,84 @@ class ICUDomain(BaseDomain):
         self.init_config_dict = {"VAE": VAE_config}
 
         self.static_names = [
-            "height_first",
-            "height_min",
-            "height_max",
-            "weight_first",
-            "weight_min",
-            "weight_max",
-            "congestive_heart_failure",
-            "cardiac_arrhythmias",
-            "valvular_disease",
-            "pulmonary_circulation",
-            "peripheral_vascular",
-            "hypertension",
-            "paralysis",
-            "other_neurological",
-            "chronic_pulmonary",
-            "diabetes_uncomplicated",
-            "diabetes_complicated",
-            "hypothyroidism",
-            "renal_failure",
-            "liver_disease",
-            "peptic_ulcer",
-            "aids",
-            "lymphoma",
-            "metastatic_cancer",
-            "solid_tumor",
-            "rheumatoid_arthritis",
-            "coagulopathy",
-            "obesity",
-            "weight_loss",
-            "fluid_electrolyte",
-            "blood_loss_anemia",
-            "deficiency_anemias",
-            "alcohol_abuse",
-            "drug_abuse",
-            "psychoses",
-            "depression",
+            "age",
+            "weight",
+            "height",
+            "urgency",
+            "gender",
+            "surgical",
+            "sepsis_at_admission",
+            "sepsis_antibiotics",
+            "other_antibiotics",
+            "sepsis_cultures",
+            "General surgery",
+            "Internal medicine",
+            "Non-operative cardiovascular",
+            "Non-operative gastro-intestinal",
+            "Non-operative hematological",
+            "Non-operative metabolic",
+            "Non-operative neurologic",
+            "Non-operative genitourinary",
+            "Non-operative respiratory",
+            "Non-operative musculo-skeletal",
+            "Non-operative transplant",
+            "Non-operative trauma",
+            "Post-operative cardiovascular",
+            "Post-operative Gastro-intestinal",
+            "Post-operative hematological",
+            "Post-operative metabolic",
+            "Post-operative neurologic",
+            "Post-operative genitourinary",
+            "Post-operative respiratory",
+            "Post-operative musculo-skeletal",
+            "Post-operative transplant",
+            "Post-operative trauma",
         ]
 
         self.series_names = [
-            "bicarbonate",
-            "bun",
-            "chloride",
-            "creatinine",
-            "diasbp",
-            "fio2",
-            "glucosechart",
-            "glucoselab",
-            "heartratehigh",
-            "hematocrit",
-            "hemoglobin",
-            "inr",
-            "meanbp",
-            "platelet",
-            "potassium",
-            "pt",
-            "ptt",
-            "resprate",
-            "sodium",
-            "spo2",
-            "sysbp",
-            "temperature",
-            "wbc",
-            "extubated",
+            "Diastolic ABP",
+            "Average ABP",
+            "Systolic ABP",
+            "ALAT (blood)",
+            "APTT (blood)",
+            "APTT (blood)",
+            "ASAT (blood)",
+            "Act.HCO3 (blood)",
+            "Breathing rate",
+            "Alb.Chem (blood)",
+            "Alk.Fosf. (blood)",
+            "B.E. (blood)",
+            "Bilirubine (blood)",
+            "CRP (blood)",
+            "Ca (alb.corr.) (blood)",
+            "Calcium total (blood)",
+            "Cl (blood)",
+            "Exp. tidal volume",
+            "FiO2 %",
+            "Phosphate (blood)",
+            "Glucose (blood)",
+            "Heartrate",
+            "Hb (blood)",
+            "Potassium (blood)",
+            "Creatinine (blood)",
+            "Lactate (blood)",
+            "Leukocytes (blood)",
+            "Magnesium (blood)",
+            "Sodium (blood)",
+            "O2 concentration",
+            "O2 l/min",
+            "O2-Saturation (blood)",
+            "PO2 (blood)",
+            "Saturation (Monitor)",
+            "Thrombo's (blood)",
+            "Urea (blood)",
+            "pCO2 (blood)",
+            "pH (blood)",
         ]
 
         self.action_names = ["antibiotics"]
         if y_dim > 2:
-            self.action_names += ["ventilator"]
+            self.action_names += ["ventilation"]
         if y_dim > 4:
-            self.action_names += ["oxygentherapy"]
+            self.action_names += ["vasopressors"]
         return
