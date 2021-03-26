@@ -6,13 +6,13 @@ class ICUDomain(BaseDomain):
         self.base_name = "icu"
         self.name = self.base_name + f"_{y_dim}"
         self.static_in_dim = 32
-        self.series_in_dim = 38
+        self.series_in_dim = 37
 
         self.static_bin_dim = 29
         self.static_con_dim = 3
-        self.out_dim = 38
+        self.out_dim = 37
         self.bin_out_dim = 0
-        self.con_out_dim = 38
+        self.con_out_dim = 37
 
         self.terminate = 0.0601
 
@@ -141,7 +141,6 @@ class ICUDomain(BaseDomain):
             "Average ABP",
             "Systolic ABP",
             "ALAT (blood)",
-            "APTT (blood)",
             "APTT (blood)",
             "ASAT (blood)",
             "Act.HCO3 (blood)",
