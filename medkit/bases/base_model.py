@@ -34,15 +34,17 @@ class BaseModel(nn.Module):
         )
 
         sample_size = len(dataset)
+        
         privacy_engine = PrivacyEngine(
             self,
-            batch_size,
-            sample_size,
-            alphas=[10, 100],
+            batch_size=batch_size,
+            sample_size=sample_size,
+            alphas=[1,10, 100],
             noise_multiplier=0.1,
             max_grad_norm=1.0,
-            secure_rng=True,
+            secure_rng=False,
         )
+        
         if private:
             privacy_engine.attach(optimizer)
 

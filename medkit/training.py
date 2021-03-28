@@ -6,13 +6,15 @@ from medkit.bases import standard_dataset
 import torch
 from medkit.scenario import scenario
 
-"""
+
 domain = ICUDomain(y_dim=2)
-data = standard_dataset(domain,save_scale=True)
+data = standard_dataset(domain)
 
 test_init = VAEInit(domain,load=False)
-test_init.train(data,batch_size=64)
+test_init.fit(data,batch_size=64)
 test_init.model.save_model()
+
+
 """
 
 
@@ -33,6 +35,8 @@ for env in ["TForce"]:
         print(f"{env}: {y_dim}")
         test_env.fit(data, batch_size=64, validation_set=validation_data)
         # test_env.model.save_model()
+
+"""
 """
 
 pol_dict = {'LSTM':LSTMPol,'Linear':LinearPol,'MLP':MLPPol}
