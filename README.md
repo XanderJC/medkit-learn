@@ -8,13 +8,17 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
  <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
- 
-Medkit is a synthetic data generation library for medical sequential decision problems.
 
-The aim is to solve two problems commonly faced when applying machine learning in the area:
+The Medkit-Learn(ing) Environment, or Medkit, is a publicly available Python package providing simple and easy access to high-fidelity synthetic medical data.
 
-1. Provide universal access to synthetic data so that anyone with an interest can develop and test their algorithms.
-2. Provide extensive customisation of the generating process in order to better benchmark and test novel algorithms against ground truth properties.
+Primarily, Medkit is a tool that supports: (1) a variety of realistic environment models—learned from actual data, to reflect real medical settings), thus allowing simulation of (2) a variety of expressive and customisable policy models that represent complex human decision-behaviours; as well as (3) ensuring that the environment and policy components are disentangled—hence independently controllable.
+
+By fulfilling the above, Medkit seeks to enable advances in decision modelling to be validated more easily and robustly by enabling users to obtain batch datasets with known ground-truth policy parameterisations that simulate decision making behaviours with various degrees of Markovianity, bounded rationality, confounding, individual consistency and variation in practice.
+
+<p align="center">
+    <img src="imgs/overview.png" height="180" width=auto>
+</p>
+
 
 Medkit is pip installable - we recommend cloning it, optionally creating a virtual env, and installing it (this will automatically install dependencies):
 
