@@ -20,3 +20,5 @@ test_script.py
 *.egg-info
 *_pg.ipynb
 mimic.p
+*venv/
+*.icloud

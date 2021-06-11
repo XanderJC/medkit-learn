@@ -15,6 +15,8 @@ test_init.fit(data,batch_size=64)
 test_init.model.save_model()
 
 
+
+
 """
 
 

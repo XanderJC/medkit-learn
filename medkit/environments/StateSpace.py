@@ -98,7 +98,7 @@ class encoder_net(nn.Module):
 
         # Forward propagate LSTM
         out, _ = self.lstm(
-            x, (h0, c0)
+            rev_x, (h0, c0)
         )  # out: tensor of shape (batch_size, seq_length, hidden_size)
 
         out = self.linear(out)
