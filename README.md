@@ -35,14 +35,14 @@ Example usage:
 ```python
 import medkit as mk
 
-synthetic_dataset = batch_generate(
-	domain = "Ward",
-	environment = "CRN",
-	policy = "LSTM",
+synthetic_dataset = mk.batch_generate(
+    domain = "Ward",
+    environment = "CRN",
+    policy = "LSTM",
     size = 1000,
-	test_size = 200,
-	max_length = 10,
-	scale = True
+    test_size = 200,
+    max_length = 10,
+    scale = True
 )
 
 static_train, observations_train, actions_train = synthetic_dataset['training']
