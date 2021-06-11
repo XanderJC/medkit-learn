@@ -1,8 +1,8 @@
 
 
-<img src="imgs/logo.png" height="120" width=auto>
+<img src="imgs/logo.png" height="100" width=auto>
 
-# The Medkit-learn(ing) Environment
+# [The Medkit-learn(ing) Environment](https://arxiv.org/abs/2106.04240)
 
 ### Alex J. Chan, Ioana Bica, Alihan Huyuk, Daniel Jarrett, and Mihaela van der Schaar
 
