@@ -25,7 +25,7 @@ class CFDomain(BaseDomain):
             "lr": 1e-3,
             "hidden_layers": 3,
             "adam_betas": (0.9, 0.99),
-            "epochs": 50,
+            "epochs": 5,
         }
         SS_config = {
             "state_space_size": 6,
@@ -37,7 +37,7 @@ class CFDomain(BaseDomain):
             "lr": 1e-3,
             "hidden_layers": 1,
             "adam_betas": (0.9, 0.99),
-            "epochs": 50,
+            "epochs": 5,
         }
         SVAE_config = {
             "latent_size": 10,

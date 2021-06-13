@@ -25,8 +25,10 @@ class WardDomain(BaseDomain):
             "hidden_dim": 128,
             "lr": 1e-3,
             "hidden_layers": 3,
+            "lstm_layers": 2,
+            "dropout": 0.2,
             "adam_betas": (0.9, 0.99),
-            "epochs": 100,
+            "epochs": 5,
         }
         SS_config = {
             "state_space_size": 10,
@@ -35,51 +37,56 @@ class WardDomain(BaseDomain):
             "hidden_dim": 64,
             "mix_components": 5,
             "markov_order": 5,
-            "lr": 1e-4,
+            "lr": 1e-3,
             "hidden_layers": 1,
             "adam_betas": (0.9, 0.99),
-            "epochs": 100,
+            "epochs": 5,
         }
         SVAE_config = {
             "latent_size": 10,
             "ae_hidden_dim": 128,
             "ae_hidden_layers": 1,
             "t_hidden_dim": 128,
-            "lr": 1e-4,
+            "t_lstm_layers": 2,
+            "lr": 1e-5,
             "adam_betas": (0.9, 0.99),
-            "epochs": 50,
+            "epochs": 5,
         }
         CRN_config = {
             "hidden_dim": 128,
             "lr": 1e-3,
             "hidden_layers": 3,
+            "lstm_layers": 2,
+            "dropout": 0.2,
             "adam_betas": (0.9, 0.99),
-            "epochs": 100,
+            "epochs": 5,
         }
 
         LSTM_config = {
             "hidden_dim": 64,
             "lr": 1e-3,
-            "hidden_layers": 1,
+            "hidden_layers": 2,
+            "lstm_layers": 1,
+            "dropout": 0.2,
             "adam_betas": (0.9, 0.99),
-            "epochs": 100,
+            "epochs": 5,
         }
         MLP_config = {
             "hidden_dim": 128,
             "lr": 1e-3,
             "hidden_layers": 3,
             "adam_betas": (0.9, 0.99),
-            "epochs": 100,
+            "epochs": 5,
         }
-        Linear_config = {"lr": 1e-3, "adam_betas": (0.9, 0.99), "epochs": 100}
+        Linear_config = {"lr": 1e-3, "adam_betas": (0.9, 0.99), "epochs": 5}
 
         VAE_config = {
             "latent_size": 10,
             "hidden_units": 100,
-            "lr": 1e-3,
+            "lr": 1e-4,
             "hidden_layers": 3,
             "adam_betas": (0.9, 0.9),
-            "epochs": 500,
+            "epochs": 10,
         }
 
         self.env_config_dict = {

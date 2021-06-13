@@ -13,6 +13,7 @@
 */.ipynb_checkpoints/
 .pytest_cache
 test_script.py
+training.py
 *_test.py
 *_exp.py
 *_exp.pdf

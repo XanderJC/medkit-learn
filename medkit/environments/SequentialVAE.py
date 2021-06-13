@@ -61,9 +61,9 @@ class Decoder(nn.Module):
         self.series_bin = nn.Linear(self.hidden_size, domain.bin_out_dim)
 
     def forward(self, x):
-        x = F.elu(self.linear1(x))
+        x = torch.sigmoid(self.linear1(x))
         for linear in self.linears:
-            x = F.elu(linear(x))
+            x = torch.sigmoid(linear(x))
 
         mean = self.series_cont_mean(x)
         lstd = self.series_cont_lstd(x)
@@ -88,7 +88,8 @@ class SVAE_env(BaseModel):
         self.t_hidden_size = self.hyper["t_hidden_dim"]
         self.t_lstm_layers = self.hyper["t_lstm_layers"]
 
-        self.t_input_size = self.latent_size + domain.y_dim + domain.static_in_dim
+        # self.t_input_size = self.latent_size + domain.y_dim + domain.static_in_dim
+        self.t_input_size = domain.series_in_dim + domain.y_dim + domain.static_in_dim
 
         self.lstm = opacus.layers.DPLSTM(
             self.t_input_size, self.t_hidden_size, self.t_lstm_layers, batch_first=True

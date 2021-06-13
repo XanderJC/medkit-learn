@@ -153,6 +153,13 @@ class VAE(BaseModel):
 
         return kl_loss - (ll_loss / batch_size)
 
+    def save_model(self):
+        path = resource_filename(
+            "medkit",
+            f"{self.form}/saved_models/{self.domain.base_name}_{self.name}.pth",
+        )
+        torch.save(self.state_dict(), path)
+
 
 class VAEInit(BaseInit):
     def __init__(self, domain, load=True):

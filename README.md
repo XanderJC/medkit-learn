@@ -55,9 +55,9 @@ While medical machine learning is by necessity almost always entirely offline, w
 env = mk.live_simulate(
     domain="ICU",
     environment="SVAE"
-):
+)
 
-observation = env.reset()
+static_obs, observation, info = env.reset()
 observation, reward, info, done = env.step(action)
 ```
 

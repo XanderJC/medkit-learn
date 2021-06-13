@@ -18,6 +18,12 @@ class BaseInit(ABC):
         self.model = BaseModel  # torch.nn.Module which for unified save/load/train
         return
 
+    def save_model(self):
+        path = resource_filename(
+            "medkit", f"{self.form}/saved_models/{self.domain.base_name}_{self.name}.pth"
+        )
+        torch.save(self.model.state_dict(), path)
+
     def load_pretrained(self):
         path = resource_filename(
             "medkit",
