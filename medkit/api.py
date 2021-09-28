@@ -31,6 +31,26 @@ def batch_generate(
 ):
     """
     Base API function for generating a batch dataset
+
+    Args:
+        domain (str, optional): Domain. Defaults to "Ward".
+        environment (str, optional): Environment Model. Defaults to "SVAE".
+        policy (str, optional): Policy Model. Defaults to "LSTM".
+        actions (int, optional): Number of actions. Defaults to 2.
+        size (int, optional): Number of training trajectories. Defaults to 100.
+        valid_size ([type], optional): No. of validation trajectories. Defaults to None.
+        test_size ([type], optional): Number of testing trajectories. Defaults to None.
+        max_length (int, optional): Max trajectory length. Defaults to 50.
+        scale (bool, optional): Apply scaling to trajectories. Defaults to False.
+        out (str, optional): Output formating. Defaults to "numpy".
+        confounders ([type], optional): List of confounding variables. Defaults to None.
+        overlooked ([type], optional): List of ignored variables. Defaults to None.
+        stochastic (bool, optional): Stochastically sampled actions. Defaults to False.
+        variation (float, optional): Sampling temperature. Defaults to 1.0.
+        seed ([type], optional): Random seed. Defaults to None.
+
+    Returns:
+        batch data : generated data.
     """
 
     if seed is not None:
@@ -192,6 +212,23 @@ def live_simulate(
     variation=1.0,
     **kwargs,
 ):
+    """
+
+    Build scenario to generate live data from.
+
+    Args:
+        domain (str, optional): Domain. Defaults to "Ward".
+        environment (str, optional): Environment Model. Defaults to "SVAE".
+        policy (str, optional): Policy Model. Defaults to "LSTM".
+        actions (int, optional): Number of actions. Defaults to 2.
+        confounders ([type], optional): List of confounding variables. Defaults to None.
+        overlooked ([type], optional): List of ignored variables. Defaults to None.
+        stochastic (bool, optional): Stochastically sampled actions. Defaults to False.
+        variation (float, optional): Sampling temperature. Defaults to 1.0.
+
+    Returns:
+        scene : generated scenario.
+    """
 
     dom_dict = {"ICU": ICUDomain, "Ward": WardDomain, "CF": CFDomain}
     env_dict = {

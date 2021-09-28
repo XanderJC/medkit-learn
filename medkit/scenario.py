@@ -23,6 +23,15 @@ class scenario(gym.Env):
 
         Inherits from gym.Env for simple simulation access to the environment which
         also provides decision support in terms of predicted actions from the policy.
+
+        Args:
+            domain (str, optional): Domain. Defaults to "Ward".
+            environment (str, optional): Environment Model. Defaults to "SVAE".
+            policy (str, optional): Policy Model. Defaults to "LSTM".
+            confounders ([type], optional): List of confounding variables. Defaults to None.
+            overlooked ([type], optional): List of ignored variables. Defaults to None.
+            stochastic (bool, optional): Stochastically sampled actions. Defaults to False.
+            variation (float, optional): Sampling temperature. Defaults to 1.0.
         """
 
         self.dom = domain
@@ -48,6 +57,16 @@ class scenario(gym.Env):
         self.temp = variation
 
     def batch_generate(self, num_trajs=10, max_seq_length=50):
+        """
+        Generate batch dataset.
+
+        Args:
+            num_trajs (int, optional): Number of trajectories. Defaults to 10.
+            max_seq_length (int, optional): Max trajectory length. Defaults to 50.
+
+        Returns:
+            static_data, series_data, action_data: batch data set
+        """
 
         static_data = np.zeros((num_trajs, self.dom.static_in_dim))
         series_data = np.zeros((num_trajs, max_seq_length, self.dom.series_in_dim))
