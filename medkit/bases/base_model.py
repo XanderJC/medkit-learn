@@ -25,7 +25,14 @@ class BaseModel(nn.Module):
 
         return NotImplementedError
 
-    def fit(self, dataset, batch_size=128, validation_set=None, private=False):
+    def fit(
+        self,
+        dataset,
+        batch_size=128,
+        validation_set=None,
+        save_best=True,
+        private=False,
+    ):
         data_loader = torch.utils.data.DataLoader(
             dataset, batch_size=batch_size, shuffle=True, drop_last=True
         )
@@ -47,6 +54,8 @@ class BaseModel(nn.Module):
                 secure_rng=False,
             )
             privacy_engine.attach(optimizer)
+
+        best_validation = 1e6
 
         for epoch in range(self.hyper["epochs"]):
             self.train()
@@ -70,6 +79,9 @@ class BaseModel(nn.Module):
                 self.eval()
                 validation_loss = round(float(self.loss(validation_set).detach()), 5)
                 print(f"Epoch {epoch+1} validation loss: {validation_loss}")
+                if (validation_loss < best_validation) & save_best:
+                    best_validation = validation_loss
+                    self.save_model()
 
         return
 
