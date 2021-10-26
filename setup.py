@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="medkit",
+    name="medkit_learn",
     version="0.1.0",
     author="Alex J. Chan",
     author_email="alexjameschan@gmail.com",
@@ -13,6 +13,8 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/XanderJC/medkit-learn",
     packages=setuptools.find_packages(),
+    package_data={'': ['*.pth']},
+    include_package_data=True,
     install_requires=[
         "torch >= 1.7.0",
         "tqdm >= 4.54.1",
