@@ -1,22 +1,20 @@
-import numpy as np
-import gym
-from gym import spaces
+import time
 import warnings
 from abc import ABC, abstractmethod
-import time
-import pandas as pd
 
+import gym
+import numpy as np
+import opacus
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.autograd import Variable
-import torch.optim as optim
 import torch.nn.init as weight_init
-from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
-
-import opacus
+import torch.optim as optim
+from gym import spaces
 from opacus import PrivacyEngine
-
 from pkg_resources import resource_filename
+from torch.autograd import Variable
+from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 from medkit.tools.scalers import scaler

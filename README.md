@@ -61,13 +61,13 @@ static_obs, observation, info = env.reset()
 observation, reward, info, done = env.step(action)
 ```
 
-### Citing 
+### Citing
 
 If you use this software please cite as follows:
 
 ```bib
 @misc{chan2021medkitlearning,
-      title={The Medkit-Learn(ing) Environment: Medical Decision Modelling through Simulation}, 
+      title={The Medkit-Learn(ing) Environment: Medical Decision Modelling through Simulation},
       author={Alex J. Chan and Ioana Bica and Alihan Huyuk and Daniel Jarrett and Mihaela van der Schaar},
       year={2021},
       eprint={2106.04240},

@@ -1,7 +1,7 @@
-from .LSTM import LSTMPol
 from .Linear import LinearPol
-from .MLP import MLPPol
+from .LSTM import LSTMPol
 from .Mixture import MixturePol
+from .MLP import MLPPol
 
 
 def get_pol(pol):

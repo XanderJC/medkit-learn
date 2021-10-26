@@ -27,7 +27,7 @@ jobs:
         run: pre-commit run --files medkit/*
       - name: Security checks
         run: |
-            bandit -r medkit/*
+            bandit -r medkit/* --skip B101
 
   Library:
     needs: [Linter]
@@ -44,13 +44,11 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install MacOS dependencies
-        run: |
-            brew install libomp
-        if: ${{ matrix.os == 'macos-latest' }}
       - name: Install dependencies
         run: |
+            pip install --upgrade pip
+            pip install setuptools wheel twine auditwheel
             pip install -r requirements_dev.txt
-            pip install .
+            pip install --verbose .
       - name: Test with pytest
         run: pytest -vvvsx -m "not slow"

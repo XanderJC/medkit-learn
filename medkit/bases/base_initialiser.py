@@ -20,7 +20,8 @@ class BaseInit(ABC):
 
     def save_model(self):
         path = resource_filename(
-            "medkit", f"{self.form}/saved_models/{self.domain.base_name}_{self.name}.pth"
+            "medkit",
+            f"{self.form}/saved_models/{self.domain.base_name}_{self.name}.pth",
         )
         torch.save(self.model.state_dict(), path)
 

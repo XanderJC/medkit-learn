@@ -28,14 +28,6 @@ repos:
   hooks:
   - id: black
     language_version: python3
-- repo: https://gitlab.com/pycqa/flake8
-  rev: 3.9.1
-  hooks:
-  - id: flake8
-    args: [
-        "--max-line-length=340",
-        "--extend-ignore=E203,W503"
-    ]
 - repo: local
   hooks:
   - id: flynt

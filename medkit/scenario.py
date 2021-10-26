@@ -1,9 +1,10 @@
-import numpy as np
-import gym
-from gym import spaces
 import warnings
-from tqdm import tqdm
+
+import gym
+import numpy as np
 import torch
+from gym import spaces
+from tqdm import tqdm
 
 
 class scenario(gym.Env):

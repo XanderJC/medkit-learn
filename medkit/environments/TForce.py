@@ -1,5 +1,6 @@
-from .__head__ import *
 from medkit.initialisers import VAEInit
+
+from .__head__ import *
 
 
 class RNN_env(BaseModel):
