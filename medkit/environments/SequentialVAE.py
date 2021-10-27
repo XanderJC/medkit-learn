@@ -1,5 +1,6 @@
-from .__head__ import *
 from medkit.initialisers.VAE import VAEInit
+
+from .__head__ import *
 
 
 class Encoder(nn.Module):

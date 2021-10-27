@@ -1,7 +1,7 @@
-from .TForce import TForceEnv
+from .CounterfactualRNN import CRNEnv
 from .SequentialVAE import SVAEEnv
 from .StateSpace import StateSpaceEnv
-from .CounterfactualRNN import CRNEnv
+from .TForce import TForceEnv
 
 
 def get_env(env):

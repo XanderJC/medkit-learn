@@ -1,6 +1,6 @@
 from .__head__ import *
-from .base_reward import BaseReward
 from .base_model import BaseModel
+from .base_reward import BaseReward
 
 
 class BaseEnv(gym.Env):

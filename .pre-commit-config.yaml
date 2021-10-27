@@ -1,0 +1,40 @@
+exclude: 'setup.py|^docs'
+
+repos:
+- repo: git://github.com/pre-commit/pre-commit-hooks
+  rev: v3.4.0
+  hooks:
+  - id: trailing-whitespace
+  - id: check-added-large-files
+  - id: check-ast
+  - id: check-json
+  - id: check-merge-conflict
+  - id: check-xml
+  - id: check-yaml
+  - id: debug-statements
+  - id: check-executables-have-shebangs
+  - id: end-of-file-fixer
+  - id: requirements-txt-fixer
+  - id: mixed-line-ending
+    args: ['--fix=auto']  # replace 'auto' with 'lf' to enforce Linux/Mac line endings or 'crlf' for Windows
+
+- repo: https://github.com/pycqa/isort
+  rev: 5.8.0
+  hooks:
+  - id: isort
+
+- repo: https://github.com/psf/black
+  rev: 21.4b0
+  hooks:
+  - id: black
+    language_version: python3
+- repo: local
+  hooks:
+  - id: flynt
+    name: flynt
+    entry: flynt
+    args: [--fail-on-change]
+    types: [python]
+    language: python
+    additional_dependencies:
+        - flynt
