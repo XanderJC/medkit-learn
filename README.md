@@ -2,7 +2,7 @@
 
 <img src="imgs/logo.png" height="100" width=auto>
 
-# [The Medkit-learn(ing) Environment](https://openreview.net/forum?id=Ayf90B1yESX)
+# [The Medkit-Learn(ing) Environment](https://openreview.net/forum?id=Ayf90B1yESX)
 
 ### Alex J. Chan, Ioana Bica, Alihan Huyuk, Daniel Jarrett, and Mihaela van der Schaar
 
@@ -20,7 +20,7 @@ By fulfilling the above, Medkit seeks to enable advances in decision modelling t
 </p>
 
 
-Medkit is pip installable - we recommend cloning it, optionally creating a virtual env, and installing it (this will automatically install dependencies):
+Medkit is pip installable - to work with the latest version, we recommend cloning it, optionally creating a virtual env, and installing it (this will automatically install dependencies):
 
 ```shell
 git clone https://github.com/XanderJC/medkit-learn.git
@@ -30,6 +30,11 @@ cd medkit-learn
 pip install -e .
 ```
 
+Alternatively, Medkit is available on [PyPI](https://pypi.org/project/medkit-learn/), and can be installed simply with:
+
+```shell
+pip install medkit-learn
+```
 
 Example usage:
 ```python
