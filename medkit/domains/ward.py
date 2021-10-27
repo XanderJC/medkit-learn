@@ -28,7 +28,7 @@ class WardDomain(BaseDomain):
             "lstm_layers": 2,
             "dropout": 0.2,
             "adam_betas": (0.9, 0.99),
-            "epochs": 5,
+            "epochs": 30,
         }
         SS_config = {
             "state_space_size": 10,
@@ -40,7 +40,7 @@ class WardDomain(BaseDomain):
             "lr": 1e-3,
             "hidden_layers": 1,
             "adam_betas": (0.9, 0.99),
-            "epochs": 5,
+            "epochs": 30,
         }
         SVAE_config = {
             "latent_size": 10,
@@ -48,9 +48,9 @@ class WardDomain(BaseDomain):
             "ae_hidden_layers": 1,
             "t_hidden_dim": 128,
             "t_lstm_layers": 2,
-            "lr": 1e-5,
+            "lr": 1e-3,
             "adam_betas": (0.9, 0.99),
-            "epochs": 5,
+            "epochs": 30,
         }
         CRN_config = {
             "hidden_dim": 128,
@@ -59,7 +59,7 @@ class WardDomain(BaseDomain):
             "lstm_layers": 2,
             "dropout": 0.2,
             "adam_betas": (0.9, 0.99),
-            "epochs": 5,
+            "epochs": 30,
         }
 
         LSTM_config = {
@@ -69,16 +69,16 @@ class WardDomain(BaseDomain):
             "lstm_layers": 1,
             "dropout": 0.2,
             "adam_betas": (0.9, 0.99),
-            "epochs": 5,
+            "epochs": 30,
         }
         MLP_config = {
             "hidden_dim": 128,
             "lr": 1e-3,
             "hidden_layers": 3,
             "adam_betas": (0.9, 0.99),
-            "epochs": 5,
+            "epochs": 30,
         }
-        Linear_config = {"lr": 1e-3, "adam_betas": (0.9, 0.99), "epochs": 5}
+        Linear_config = {"lr": 1e-3, "adam_betas": (0.9, 0.99), "epochs": 30}
 
         VAE_config = {
             "latent_size": 10,

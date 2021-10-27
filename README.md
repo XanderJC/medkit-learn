@@ -2,7 +2,7 @@
 
 <img src="imgs/logo.png" height="100" width=auto>
 
-# [The Medkit-learn(ing) Environment](https://arxiv.org/abs/2106.04240)
+# [The Medkit-learn(ing) Environment](https://openreview.net/forum?id=Ayf90B1yESX)
 
 ### Alex J. Chan, Ioana Bica, Alihan Huyuk, Daniel Jarrett, and Mihaela van der Schaar
 
@@ -66,12 +66,11 @@ observation, reward, info, done = env.step(action)
 If you use this software please cite as follows:
 
 ```bib
-@misc{chan2021medkitlearning,
-      title={The Medkit-Learn(ing) Environment: Medical Decision Modelling through Simulation}, 
-      author={Alex J. Chan and Ioana Bica and Alihan Huyuk and Daniel Jarrett and Mihaela van der Schaar},
-      year={2021},
-      eprint={2106.04240},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
+@inproceedings{chan2021medkitlearn,
+        title={The Medkit-Learn(ing) Environment: Medical Decision Modelling through Simulation},
+        author={Alex James Chan and Ioana Bica and Alihan H{\"u}y{\"u}k and Daniel Jarrett and Mihaela van der Schaar},
+        booktitle={Proceedings of the Neural Information Processing Systems Track on Datasets and Benchmarks},
+        year={2021},
+        url={https://openreview.net/forum?id=Ayf90B1yESX}
 }
 ```
