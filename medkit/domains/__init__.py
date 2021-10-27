@@ -1,7 +1,7 @@
-from .icu import ICUDomain
-from .ward import WardDomain
 from .cf import CFDomain
+from .icu import ICUDomain
 from .mimic import MimicDomain
+from .ward import WardDomain
 
 
 def get_domain(domain, y_dim):

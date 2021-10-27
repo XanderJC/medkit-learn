@@ -72,9 +72,9 @@ class standard_dataset(BaseDataset):
             cov = patient[domain.series_names].to_numpy()
 
             if domain.bin_out_dim > 0:
-                cov[:, -domain.bin_out_dim :] = (cov[:, -domain.bin_out_dim :] > 0).astype(
-                    int
-                )
+                cov[:, -domain.bin_out_dim :] = (
+                    cov[:, -domain.bin_out_dim :] > 0
+                ).astype(int)
             targets = patient[domain.action_names].to_numpy()
             targets = (targets > 0).astype(int)
             y = targets[:, 0]
@@ -100,7 +100,6 @@ class standard_dataset(BaseDataset):
         path = resource_filename("medkit", path_head)
         static_df = pd.read_csv(path)
         static_df.fillna(static_df.mean(), inplace=True)
-
 
         static = torch.zeros((len(unique_ids), domain.static_in_dim))
 

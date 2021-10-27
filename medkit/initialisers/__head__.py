@@ -1,19 +1,18 @@
-import numpy as np
-import gym
-from gym import spaces
+import time
 import warnings
 from abc import ABC, abstractmethod
-import time
 
+import gym
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.autograd import Variable
-import torch.optim as optim
 import torch.nn.init as weight_init
+import torch.optim as optim
+from gym import spaces
+from opacus import PrivacyEngine
+from pkg_resources import resource_filename
+from torch.autograd import Variable
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
-from opacus import PrivacyEngine
-
-from pkg_resources import resource_filename
-from medkit.bases import BaseModel, BaseInit
+from medkit.bases import BaseInit, BaseModel

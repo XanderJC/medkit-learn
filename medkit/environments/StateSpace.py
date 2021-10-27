@@ -1,6 +1,7 @@
-from .__head__ import *
 from medkit.initialisers.VAE import VAEInit
 from medkit.tools import reverse_sequence
+
+from .__head__ import *
 
 
 class emitter(nn.Module):

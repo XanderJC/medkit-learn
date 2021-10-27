@@ -1,9 +1,10 @@
-from .__head__ import *
-from medkit.initialisers.VAE import VAEInit
-
 import numpy as np
 import torch
 from torch.autograd import Function
+
+from medkit.initialisers.VAE import VAEInit
+
+from .__head__ import *
 
 
 class CRN_env(BaseModel):

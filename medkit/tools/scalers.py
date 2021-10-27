@@ -54,7 +54,7 @@ class scaler(nn.Module):
                 combined = torch.cat((combined, no_pad), axis=0)
 
             mean = torch.zeros([self.domain.series_in_dim])
-            
+
             std = torch.ones([self.domain.series_in_dim])
 
             mean[: self.domain.con_out_dim] = combined.mean(axis=0)[

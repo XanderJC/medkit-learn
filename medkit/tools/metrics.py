@@ -1,6 +1,7 @@
-from .__head__ import *
 import opacus
-from sklearn.metrics import roc_auc_score, accuracy_score
+from sklearn.metrics import accuracy_score, roc_auc_score
+
+from .__head__ import *
 
 
 class discriminator(nn.Module):

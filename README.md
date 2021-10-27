@@ -61,7 +61,7 @@ static_obs, observation, info = env.reset()
 observation, reward, info, done = env.step(action)
 ```
 
-### Citing 
+### Citing
 
 If you use this software please cite as follows:
 
