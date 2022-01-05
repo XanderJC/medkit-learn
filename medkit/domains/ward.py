@@ -86,7 +86,7 @@ class WardDomain(BaseDomain):
             "lr": 1e-4,
             "hidden_layers": 3,
             "adam_betas": (0.9, 0.9),
-            "epochs": 10,
+            "epochs": 200,
         }
 
         self.env_config_dict = {

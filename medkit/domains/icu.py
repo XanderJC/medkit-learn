@@ -82,10 +82,10 @@ class ICUDomain(BaseDomain):
         VAE_config = {
             "latent_size": 10,
             "hidden_units": 100,
-            "lr": 1e-4,
+            "lr": 1e-5,
             "hidden_layers": 3,
             "adam_betas": (0.9, 0.9),
-            "epochs": 10,
+            "epochs": 200,
         }
 
         self.env_config_dict = {

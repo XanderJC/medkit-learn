@@ -198,7 +198,7 @@ class SVAEEnv(BaseEnv):
         action = action.reshape((1, 1))
         action_one_hot = F.one_hot(action, self.domain.y_dim)
 
-        x = torch.cat((self.prev_latent, action_one_hot, self.static), 2)
+        x = torch.cat((self.prev_obs, action_one_hot, self.static.expand(1, 1, -1)), 2)
 
         out, (self.hn, self.cn) = self.model.lstm(x, (self.hn, self.cn))
 
